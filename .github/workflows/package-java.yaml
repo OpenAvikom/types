@@ -22,9 +22,10 @@ jobs:
         run: cp -r templates/java workspace
       - name: Configure version
         run: sed -i "s/@VERSION@/${VERSION}/g" workspace/pom.xml
+        env:
+          VERSION: ${{ github.ref_name }}
       - name: Build and publish package
         run: mvn --batch-mode deploy
         working-directory: workspace
         env:
-          VERSION: ${{ github.ref_name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
