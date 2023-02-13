@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * A message to provide feedback about sucessful or failed remote procedure calls
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Result {
+  bool success = 1; /// true if sucessful, false otherwise
+  string message = 2; /// additional semantic information; specifying what went wrong or communicate results of successful operations
+  ErrorCode error = 3; /// specifies the type of error that occured; will only be set if success is false
+}
+
+enum ErrorCode {
+  NO_ERROR = 0; /// default value when no error occured or the error was not specified
+  INTERNAL_ERROR = 1; /// errors on server side that cannot be solved by client
+  ATTRIBUTE_ERROR = 2; /// errors with regard to the attributes of the request
+  VALUE_ERROR = 3; /// one or more attribute values provided were not valid
+  RUNTIME_ERROR = 4; /// the error occured unexpectedly during execution of program 
+  NOT_IMPLEMENTED_ERROR = 5; /// returned if service called is not implemented on server side
+}

@@ -1,0 +1,21 @@
+
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/options/options.proto";
+import "avikom/unity/asset_bundle_info.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/*
+ * Provides an interface to request AssetBundles from a server. 
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message AssetBundle {
+  AssetBundleInfo info = 1;
+  bytes data = 2;
+}

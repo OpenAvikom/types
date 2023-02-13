@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/generic/result.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * This enum contains all currently available kinds of interaction users can conduct with their surounding.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+enum InteractionType {
+  INTERACTION_UNKNOWN = 0;      /// default value; should not be set actively
+  INTERACTION_TAP = 1;          /// a user taps/clicks an element 
+  INTERACTION_HOME = 2;         /// a home menu button or return element is activated 
+  INTERACTION_BUTTON_DOWN = 3;  /// a button is pushed down
+  INTERACTION_BUTTON_UP = 4;    /// a button is released
+  INTERACTION_DRAG_START = 5;   /// user starts to drag an element
+  INTERACTION_DRAG_STOP = 6;    /// user finished the dragging process
+}

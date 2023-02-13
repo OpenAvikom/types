@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package avikom.options;
+
+import "google/protobuf/descriptor.proto";
+
+option csharp_namespace = "Avikom.Types.Options";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/options";
+option java_package = "app.avikom.types.options";
+
+
+/**
+ * This is a meta message which is not supposed to be shared but used to define database-related properties.
+ * These properties will be evaluated by the protoc converter plugins to determine -- for instance -- the mongoDB schema required to store and retrieve a decorated message.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message FieldOptions {
+  bool index = 1;      /// marks the field as index; NOTE: unused; use 'unique' instead
+  bool unique = 2;     /// interprete field as key for the schema; will generate approriate helper functions to retrieve documents
+  string default = 3;  /// define default value for an (optional) field
+  string match = 4;    /// regex for data validation; NOTE: unused
+  string min = 5;      /// minimal value for a field; NOTE: unused
+  bool immutable = 6;  /// mark a field as unchangeable; NOTE: unused
+  bool auto_index = 7;  /// increase the index automatically; NOTE: unused
+}
+
+/// Assigns `FieldOptions` as extended types to message fields.
+extend google.protobuf.FieldOptions { FieldOptions schema = 50001; }
+
+/**
+ * When a message is decorated with `schema_definition`, the protoc converter will treat this message as an individual schema for a database table.
+ * Fields of a type that is defined as a schema definition will be _referenced_ while non-schema types will be treated as embedded documents.
+ */
+extend google.protobuf.MessageOptions { bool schema_definition = 50001; }

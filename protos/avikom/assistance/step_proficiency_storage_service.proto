@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/step_proficiency.proto";
+import "avikom/assistance/split_procedure_result.proto";
+import "avikom/generic/result.proto";
+import "google/api/annotations.proto";
+
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/*
+ * Stores the required step proficiencies for users and their split procedure results.
+ * If no record exists for user_id, Get/SetStepProficiency should generate and/or work with
+ * default data and information retrieved from task step stereotypes. Thus there should always be
+ * a valid return value and/or generated entry to work with. Furthermore,
+ * assistance_decay should be 'fuzzy' to follow ideas presented in https://www.mdpi.com/2078-2489/12/1/17. 
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service StepProficiencyStorageService {
+  /// returns step proficiency for a user with `user_id` and the task step named `target_name` 
+  rpc GetStepProficiency(StepProficiencyQuery) returns (StepProficiency) {
+    option (google.api.http) = {
+      get: "/v1/storage/step_proficiencies/step/{target_name}/{user_id}"
+    };
+  }
+
+  /// updates or creates the step proficiency for a user with `user_id` for the task step named `target_name`
+  rpc SetStepProficiency(StepProficiency) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      post: "/v1/storage/step_proficiencies"
+      body : "*"
+    };
+  }
+
+  /// returns the split procedure results for a user with `user_id` for the task named `target_name`  
+  rpc GetSplitProcedureResult(StepProficiencyQuery) returns (avikom.assistance.SplitProcedureResult) {
+    option (google.api.http) = {
+      get: "/v1/storage/split_procedure/{target_name}/{user_id}"
+    }; 
+  }
+
+  /// creates or updates split procedure results for a user with `user_id` for the task named `target_name`  
+  rpc SetSplitProcedureResult(SplitProcedureResult) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      post: "/v1/storage/split_procedure"
+      body : "*"
+    };
+  }
+}
+
+/*
+ * A query to retrieve `StepProficiencies` for task steps or `SplitProcedureResults` for taks
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message StepProficiencyQuery {
+  uint32 user_id = 1;      /// ID of the user in question
+  string target_name = 2;  /// either a task step name (for proficiencies) or a task name (for split procedure results)
+}

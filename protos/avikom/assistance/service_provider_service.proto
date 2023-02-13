@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/generic/peer.proto";
+import "avikom/generic/result.proto";
+import "avikom/assistance/service_configuration.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A service is a task step-agnostic solution provider.
+ * It must be specifically requested/configured in the apprpriate task step.
+ * @author Alexander McService Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+service ServiceProviderService {
+    /// starts the service; a task_id must be passed for the service to resolve it
+    rpc PostServiceRequest(ServiceRequest) returns (avikom.generic.Result) {}
+    /// cancels a currently running task request; task_id must be provided
+    rpc CancelServiceRequest(ServiceRequest) returns (avikom.generic.Result) {}
+}
+
+
+/**
+ * A request passed to `ServiceProviderService`.
+ * @author Alexander McService Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message ServiceRequest {
+    string task_id = 1;                                        /// represents the task that is related to the service request
+    avikom.assistance.ServiceConfiguration configuration = 2;  /// service type and configuration parameters 
+    repeated avikom.generic.Peer peers = 3;                    /// a list of available peers that can be used to resolve the service request
+}

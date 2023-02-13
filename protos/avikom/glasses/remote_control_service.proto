@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/generic/result.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * An interface to allow other peers to (automatically) control GUI elements.
+ * A `RemoteControlService` must know the concepts of a `StepBrowser` and the central introduction hub.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service RemoteControlService {
+  /// enable the step browser
+  rpc ShowStepBrowser (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// disable the step prowser
+  rpc HideStepBrowser (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// show next step in the step browser
+  rpc ShowNextStep (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// show previous step in the step browser
+  rpc ShowPreviousStep (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// show the next media file in the control hub
+  rpc ShowNextMedia (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// show the previous media file in the control hub
+  rpc ShowPreviousMedia (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// play the currently active media file if applicable
+  rpc PlayMedia (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// pause the currently shown media file
+  rpc PauseMedia (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+
+  /// stops the currently shown media file; may also be called while a media file is paused
+  rpc StopMedia (google.protobuf.Empty) returns (avikom.generic.Result) {
+
+  }
+}

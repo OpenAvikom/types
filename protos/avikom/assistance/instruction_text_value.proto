@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * The actual value of a text instruction in different representations
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+ message InstructionTextValue {
+    string plain = 1;  /// value as plain text
+    string ssml = 2;   /// value with Speech Synthesis Markup Language annotation
+    string html = 3;   /// value with HTML annotation
+}

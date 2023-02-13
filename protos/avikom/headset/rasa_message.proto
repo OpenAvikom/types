@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avikom.headset;
+
+import "avikom/generic/key_value_pair.proto";
+
+option csharp_namespace = "Avikom.Types.Headset";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/headset";
+option java_package = "app.avikom.types.headset";
+
+
+/**
+ * A RasaMessage provides the intents and slots recognized by rasa for a specific user.
+ * @author Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message RasaMessage {
+  string intent = 1; /// the recognized intention of the user input
+  repeated avikom.generic.KeyValuePair slots = 2; /// additional information extracted from user input as key-value pairs
+  uint64 user_id = 3; /// the user who provided the input
+}

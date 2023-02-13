@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This enum describes the assistance level required by a user or assigned to an instruction.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+enum AssistanceLevel {
+  UNKNOWN = 0;  /// representes an unset level; should not be used explicitely
+  NONE = 1;     /// user requires no assistance; instructions assigned to this level are considered mandatory
+  BRIEF = 2;    /// provides some (textual/visual) hooks to remember the step at hand
+  DEFAULT = 5;  /// this should be the experience for new and unknown users
+  VERBOSE = 9;  /// highest demand for assistance; should provide all assistance possible
+}
+

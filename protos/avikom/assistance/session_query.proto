@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This message is used to initialized or request a session.
+ * @author Alexander McService Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message SessionQuery {
+    string id = 1;          /// unique id of a session; will be created by `SessionService`
+    uint64 user_id = 2;     /// user assigned to the session
+    string scene_name = 3;  /// location assigned to the session
+    string task_name = 4;   /// task assigned to the session
+    string username = 5;    /// resolves assigned `user_id` from `username`
+}

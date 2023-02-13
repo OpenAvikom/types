@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * The actual value of a media instruction. Only one field should be set.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message InstructionMediaValue {
+   string uri = 1;      /// a local ressource identifier; resolution is receiver-specific
+   string url = 2;      /// a global reference to a ressource; should be taken literally
+   bytes data = 3;      /// the media file as a data stream
+   MediaType type = 4;  /// type hint for this media value
+   bool looped = 10;    /// determines whether a media file should be looped (if playable)
+   bool autoplay = 11;  /// determines whether a media file should be opened/executed right away
+}
+
+/**
+ * Defines the (MIME) type of a media instruction.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+enum MediaType {
+   TYPE_UNKNOWN = 0;
+   TYPE_IMAGE_JPEG = 1;
+   TYPE_IMAGE_PNG = 2;
+   TYPE_VIDEO_MP4 = 5;
+   TYPE_AUDIO_WAV = 10;
+   TYPE_AUDIO_MP3 = 11;
+   TYPE_APPLICATION_PDF = 20;
+   TYPE_APPLICATION_XML = 21;
+   TYPE_TEXT_PLAIN = 30;
+   TYPE_WORLD_OBJECT = 40;
+}

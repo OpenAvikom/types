@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/assistance_level.proto";
+import "avikom/generic/modality.proto";
+import "avikom/unity/transpose.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+/**
+ * This message describes the common base for an instruction.
+ * Every instruction has an assistance level and can be modaly modulated
+ * They should all be compatible with the 'Basic Action Concept' (BAC) of SDA-M.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message InstructionMeta {
+    AssistanceLevel assistance_level = 1;    /// the targeted assistance level, this instruction wont be available for users with less assistance requirements
+    avikom.generic.Modality modal_bias = 2;  /// whether an instruction should be preferably presented in a certain modality and whether a modality in generally unsuited for that introduction.
+    string location = 3;                     /// name of the scene/task asset this object should be referenced to;
+    avikom.unity.Transpose transpose = 4;    /// relative offset to the mentioned location
+    string id = 5;                           /// an optional id to reference the instruction later
+}

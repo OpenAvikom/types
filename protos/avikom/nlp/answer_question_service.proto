@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package avikom.nlp;
+
+option csharp_namespace = "Avikom.Types.Nlp";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/nlp";
+option java_package = "app.avikom.types.nlp";
+
+
+/**
+ * This service sends a question and context as requests to the nlp module (currently HuggingFace).
+ * For example, you might want to extract information from a text by asking a question. You assume, that 
+ * the answer to your question can be found within the text.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+service AnswerQuestionService{
+    /// the answer to the posed question is searched in the set context and returned if found; 
+    /// the model is currently based on https://huggingface.co/Sahajtomar/GBERTQnA
+    rpc AnswerQuestion(AnswerQuestionQuery) returns (AnswerQuestionResponse) {}
+}
+
+/**
+ * This message is used to ask a question to be answered on the basis of the context.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message AnswerQuestionQuery{
+    string context = 1;   /// this text string should contain the answer to the question
+    string question = 2;  /// the question you would like to find an answer to in the context
+}
+
+/**
+ * This message is includes the response to the posed question and where in the context the answer was found.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message AnswerQuestionResponse{
+    float score = 1;   /// confidence between 0-1 that the correct answer was found 
+    int32 start = 2;   /// start position of answer in charactercount
+    int32 end = 3;     /// end position of answer in charactercount
+    string answer = 4; /// the answer to the posed question is a text excerpt from the context
+}

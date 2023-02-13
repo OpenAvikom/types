@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/generic/result.proto";
+import "avikom/generic/peer.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * 
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service StreamRequestService {
+  rpc InitStream (StreamRequest) returns (Peer) {}
+  rpc CloseStream (StreamRequest) returns (google.protobuf.Empty) {}
+}
+
+message StreamRequest {
+  Protocol protocol = 1;
+  AudioQuality audio_quality = 2;
+  VideoQuality video_quality = 3;
+  bool send_augmented = 4;
+  bool receive_audio = 5;
+  bool receive_video = 6;
+}
+
+enum Protocol {
+  PROTOCOL_TCP = 0;
+  PROTOCOL_WEBSOCKET = 1;
+}
+
+enum VideoQuality {
+  QUALITY_VIDEO_NONE = 0;
+  QUALITY_VIDEO_LOWEST = 1;
+  QUALITY_VIDEO_DEFAULT = 5;
+  QUALITY_VIDEO_HIGHEST = 10; 
+}
+
+enum AudioQuality {
+  QUALITY_AUDIO_NONE = 0;
+  QUALITY_AUDIO_LOWEST = 1;
+  QUALITY_AUDIO_DEFAULT = 5;
+  QUALITY_AUDIO_HIGHEST = 10;
+}

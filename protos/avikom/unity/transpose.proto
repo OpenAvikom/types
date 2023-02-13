@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/math/vector3d.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/**
+ * This message describes a 3D world pose of an object/entity.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Transpose {
+    avikom.math.Vector3D position = 1;  /// position in world units (meters) of the entity
+    avikom.math.Vector3D rotation = 2;  /// rotation in euler angles (degrees)
+    avikom.math.Vector3D scale = 3;     /// three dimensional scaling factor
+}

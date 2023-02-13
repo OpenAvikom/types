@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package avikom.camunda;
+
+option csharp_namespace = "Avikom.Types.Camunda";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/camunda";
+option java_package = "app.avikom.types.camunda";
+
+
+/**
+ * This message describes a Camunda variable.
+ * Values of commonly stored as a string and are parsed according to the type mentioned in `type` when needed.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Variable {
+  string name = 1;            /// name of the variable
+  ValueType value_type = 2;   /// variable type
+  string value = 3;           /// string-encoded variable value
+}
+
+/**
+ * This enum represents a variable type of Camunda variables.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+enum ValueType {
+  TYPE_UNSET = 0;    /// default value; should not be used in actual messages
+  TYPE_STRING = 1;   /// variable is a string
+  TYPE_NUMBER = 2;   /// variable is a (JavaScript) number
+  TYPE_BOOLEAN = 3;  /// variable is a boolean value
+}

@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/generic/peer.proto";
+import "google/api/annotations.proto";
+import "avikom/generic/result.proto";
+import "avikom/generic/user.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * Peer management service to make service ip/hostname mappings persistent over
+ * multiple sessions. The peer storage service is implemented in services and database.
+ * Only session managers should use this interface for updates and deletions. Other services
+ * should only access this service to retrieve information.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+service PeerStorageService {
+  /// updates peer information; requires peer.name; creates new peer if peer.name does not exist. This should not be called by peers directly! Use SessionService.RegisterUserPeer instead.
+  rpc UpdatePeer(Peer) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      patch: "/v1/storage/peers"
+      additional_bindings: { patch: "/v1/storage/peers/{name}" }
+      body: "*"
+    };
+  }
+  /// returns the Peer matching the name provided in the query if peer exists
+  rpc GetPeer(PeerStorageQuery) returns (Peer) {
+    option (google.api.http) = {
+      get: "/v1/storage/peers/{name}"
+    };
+  }
+  /// returns list of all peers that are registered to the user_id of "User"
+  rpc GetUserPeers(User) returns (PeerList) {
+    option (google.api.http) = {
+      get: "/v1/storage/peers/user/{id}"
+    };
+  }
+  /// deletes the Peer from the database, returns error if peer not found
+  rpc DeletePeer(PeerStorageQuery) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      delete: "/v1/storage/peers"
+      additional_bindings: { delete: "/v1/storage/peers/{name}" }
+    };
+  }
+}
+/**
+ * A message including the name of the peer being queried
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message PeerStorageQuery {
+  string name = 1; /// unique name of a peer
+}

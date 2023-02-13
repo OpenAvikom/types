@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/options/options.proto";
+import "avikom/assistance/task_step.proto";
+import "avikom/generic/user.proto";
+import "avikom/assistance/assistance_level.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A message to describe the step proficiency of a user. 
+ * This includes the currently required assistance level but also parameters to determine when or if AVIKOM will attempt to reduce the assistance level.
+ * @author: Alexander Neumann <alneuma@techfak.uni-bielefeld.de>
+ */
+message StepProficiency {
+    option (avikom.options.schema_definition) = true;
+    AssistanceLevel required_assistance = 1;  /// currently required assistance
+    avikom.generic.User user = 2;             /// user requiring assistance
+    TaskStep step = 3;                        /// task step to assist
+    float tendency = 4;                       /// tendency of the current assistance level; raning from -1 to +1
+    float assistance_decrease = 5;            /// factor to reduce `tendency` when a task was conducted successfully
+    AssistanceLevel minimal_assistance = 6;   /// when this level is reached, assistance will not decay any further
+}

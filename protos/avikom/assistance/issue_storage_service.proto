@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/generic/result.proto";
+import "avikom/assistance/issue.proto";
+import "avikom/assistance/issue_query.proto";
+import "google/api/annotations.proto";
+
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A database service to create, update and delete issues.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+service IssueStorageService {
+
+  /// Returns a list of issues filtered by `IssueQuery`
+  rpc GetIssue(IssueQuery) returns (IssueList) {
+    option (google.api.http) = {
+      get: "/v1/issues/id/{id}"
+      additional_bindings: {  get: "/v1/issues/filter/{user_id}/{status}" }
+    };
+  }
+  /// Creates a new issue; Issue.id must be set by the caller!
+  rpc CreateIssue(Issue) returns (avikom.generic.Result) {}
+  /// Updates an exisiting issue. IssueQuery must contain an id and a new status.
+  rpc UpdateIssueStatus(IssueQuery) returns (avikom.generic.Result) {}
+  /// Deletes an issue. IssueQuery.id must be set!
+  rpc DeleteIssue(IssueQuery) returns (avikom.generic.Result) {}
+}

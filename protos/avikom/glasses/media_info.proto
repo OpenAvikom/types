@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/generic/content_type.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * This message describes a media file, it's name (or file path), its content type (e.g. video, audio, image) and the current playback time if applicable.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message MediaInfo {
+  string media_name = 1;                        /// media name, identifier or file path
+  avikom.generic.ContentType content_type = 2;  /// the content type, e.g. video, image or audio
+  uint32 milliseconds = 3;                      /// the current playback time location; not applicable for images etc.
+}

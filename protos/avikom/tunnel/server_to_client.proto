@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package avikom.tunnel;
+
+import "avikom/generic/peer.proto";
+
+option csharp_namespace = "Avikom.Types.Tunnel";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/tunnel";
+option java_package = "app.avikom.types.tunnel";
+
+/**
+ * A message to be sent from a server to a tunneled client.
+ * Clients need to resolve the (local) method name and assign the correct message IDs to responses
+ * sent back to the server.
+ * Note that method names may differ depending on the client's language.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message ServerToClient {
+  string method = 1;      /// Method name in CapitalCase since this is the default proto style
+  bytes request = 2;      /// A message as a byte string; needs to be parsed and forwarded to the local gRPC server
+  uint64 message_id = 3;  /// An ID associated with the request; A response must contain the correct ID!
+}

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/options/options.proto";
+import "avikom/assistance/runtime_step_state.proto";
+import "avikom/assistance/task_step.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * Adds runtime-specific (temporal) data to a (static) TaskStep
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message RuntimeTaskStep {
+  TaskStep step = 1;   /// the task defintion; fields have been dynamically altered and contain context-specific values
+  string id = 2;       /// a unique key to define this particular RTS instance
+  avikom.assistance.RuntimeStepState state = 3; /// current state of the runtime task step  
+}

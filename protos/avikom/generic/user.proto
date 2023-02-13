@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/options/options.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * A message that contains data about a user that is essential for system operation.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message User {
+    option (avikom.options.schema_definition) = true;
+    string first_name = 1; /// the first name is optional; will default to empty string if not 
+    string last_name = 2; /// the last name is optional; will default to empty string if not set 
+    uint64 id = 3 [(avikom.options.schema).unique = true];  /// does not need to be set when a new user is created
+    repeated string usernames = 4;  /// system usernames required for certain peers, preferarbly unique to prevent imposters
+}

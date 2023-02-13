@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package avikom.vision;
+
+import "avikom/vision/image_info.proto";
+
+option csharp_namespace = "Avikom.Types.Vision";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/vision";
+option java_package = "app.avikom.types.vision";
+
+
+/**
+ * This message represents a (chunk of an) image. It may contain an `ImageInfo` header or a chunk of data of an image.
+ */
+message Image {
+  ImageInfo info = 1;  /// an information header defining size, dimensions and transfer parameters
+  bytes data = 2;      /// a series of bytes (size defined by `chunk_size` in `info`) representing a chunk of an image
+}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/runtime_step_state.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A message that combines the `RuntimeTaskStep` id and the state update.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message RuntimeStepStateChange {
+    string id = 1;                                 /// The RTS id
+    avikom.assistance.RuntimeStepState state = 2;  /// The new state of the RTS
+}

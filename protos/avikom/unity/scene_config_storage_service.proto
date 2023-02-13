@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/generic/result.proto";
+import "avikom/unity/scene_config.proto";
+import "avikom/unity/task_config.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/**
+ * This services provides and receives scene configurations and task-specific configurations.
+ * Scene and task configurations 'stack' and must not ne contradicting.
+ * There is always just one config for a scene and a task.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service SceneConfigStorageService {
+    /// adds a scene configuration for an EXISTING scene to the storage; raises exceptions when the scene config already exists
+    rpc AddSceneConfig(SceneConfig) returns (avikom.generic.Result) {}
+    
+    /// returns a scene configuration to a given `scene_name`
+    rpc GetSceneConfig(SceneConfigQuery) returns (SceneConfig) {}
+    
+    /// updates an existing scene configuration; raises an exception if it does not exist
+    rpc UpdateSceneConfig(SceneConfig) returns (avikom.generic.Result) {}
+
+    /// adds a task configuration for an EXISTING task to the storage; raises exceptions when the task config already exists
+    rpc AddTaskConfig(TaskConfig) returns (avikom.generic.Result) {}
+    
+    /// returns a task configuration to a given `task_name`
+    rpc GetTaskConfig(TaskConfigQuery) returns (TaskConfig) {}
+    
+    /// updates an existing task configuration; raises an exception if it does not exist
+    rpc UpdateTaskConfig(TaskConfig) returns (avikom.generic.Result) {}
+}
+
+/**
+ * A message to query a scene configuration by `scene_name`.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message SceneConfigQuery {
+    string scene_name = 1;  /// name of the scene
+}
+
+/**
+ * A message to query a task configuration by `task_name`.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message TaskConfigQuery {
+    string task_name = 1;  /// name of the task
+}

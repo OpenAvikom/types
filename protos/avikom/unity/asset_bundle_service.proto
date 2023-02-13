@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/unity/asset_bundle.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/*
+ * Provides an interface to request AssetBundles from a server. 
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service AssetBundleService {
+    // returns an asset bundle in binary chunks
+    rpc Get(AssetBundleQuery) returns (stream AssetBundle) {}
+}
+
+/*
+ * A message to request asset bundles from a server.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message AssetBundleQuery {
+    string bundle_name = 1;   /// globally unique name of the bundle
+}

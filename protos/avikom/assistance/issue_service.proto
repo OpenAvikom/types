@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/generic/result.proto";
+import "avikom/assistance/issue.proto";
+import "avikom/assistance/issue_query.proto";
+import "google/api/annotations.proto";
+
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This service manages issues. It should also communicate with `IssueStorageService` behind the scene for persisten issue management.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+service IssueService {
+  /// Starts a process for the queried issue.
+  rpc StartIssue(IssueQuery) returns (avikom.generic.Result) {}
+  /// Returns a list of issues filtered by `IssueQuery`.
+  rpc GetIssue(IssueQuery) returns (IssueList) {}
+}

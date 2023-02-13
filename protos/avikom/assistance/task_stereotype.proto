@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/service_configuration.proto";
+import "avikom/assistance/choices_config.proto";
+import "avikom/assistance/assistance_level.proto";
+import "avikom/unity/game_object.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This messages classifies the assistance mechanism needed for a `TaskStep`.
+ * Paramaters may contain variable names in `{curly brackets}`.
+ * These should be resolved during runtime with the session's variable content.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message TaskStereotype {
+  TaskStereotypeCategory category = 1;                           /// defines the kind of action a user can conduct to process this task
+  avikom.assistance.ChoicesConfig choices = 5;                   /// a set of choices a user can choose; will be only be considered for tasks where decisions have to be made
+  string target = 6;                                             /// the name of a  virtual or real object of central importance for that task (e.g. the target location during guidance)
+  repeated avikom.assistance.ServiceConfiguration services = 7;  /// a set of services that can be used to solve that task
+  avikom.assistance.AssistanceLevel default_assistance = 10;     /// the default assistance for this step if no step proficiency is available
+  avikom.assistance.AssistanceLevel minimal_assistance = 11;     /// overrides the category-induced minimal assistance levels but cannot be lower
+  float assistance_decrease = 12;                                /// factor to reduce `tendency` when a task was conducted successfully, this will be combined with user preferences; 0 is considered unset and will be ignored
+}
+
+enum TaskStereotypeCategory {
+  TASK_UNKOWN = 0;    /// default value; should not be used actively
+  TASK_PENDING = 1;   /// waiting for user/peer to finish task, a failure needs to be raised if impossible
+  TASK_DECISION = 2;  /// chose answer out of 'choices'
+  TASK_ASSIGN = 3;    /// assign a 'target'
+  TASK_GUIDE = 4;     /// guide user to a 'target'
+  TASK_APPROVE = 5;   /// can be approved or declined, simple yes no question
+  TASK_INPUT = 6;     /// user needs to provide further information; multiple input 'services' might be provided;
+  TASK_INTERNAL = 7;  /// informs users/peers about ongoing processes; should not be used for critical information; might not be perceivable by the user
+}

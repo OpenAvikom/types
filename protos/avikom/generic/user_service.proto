@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/generic/user.proto";
+import "avikom/generic/user_profile.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * A service to create users and to get additional information about an incomplete user object. 
+ * For information retrieval, an incomplete user object must be identifiable, 
+ * so either the user_id or usernames must be defined.
+ * For creating a new user, an incomplete user object should contain essential information,
+ * such as usernames 
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+service UserService {
+    /// expects an incomplete user object (needs to be identifiable) and will return a (hopefully) complete User or the default user (id = 0)
+    rpc GetInfo(User) returns (User) {
+        option (google.api.http) = {
+            get: "/v1/users/id/{id}"
+            additional_bindings: { 	get: "/v1/users/first_name/{first_name}" }
+            additional_bindings: {  get: "/v1/users/last_name/{last_name}" }
+            additional_bindings: {  get: "/v1/users/name/{first_name}/{last_name}" }
+          };
+    }
+    /// expects an incomplete user object (needs to be identifiable) and will return the profile of that user or an error (if user not found)
+    rpc GetProfile(User) returns (UserProfile) {
+        option (google.api.http) = {
+            get: "/v1/profiles/id/{id}"
+            additional_bindings: { 	get: "/v1/profiles/first_name/{first_name}" }
+            additional_bindings: {  get: "/v1/profiles/last_name/{last_name}" }
+            additional_bindings: {  get: "/v1/profiles/name/{first_name}/{last_name}" }
+          };
+    }
+    /// expects an incomplete user object (essential information should be set, user_id should not be set); creates a user and returns the created user
+    rpc AddUser(User) returns (User) {
+        option (google.api.http) = {
+            post: "/v1/users"
+            body: "*"
+        };
+    }
+}

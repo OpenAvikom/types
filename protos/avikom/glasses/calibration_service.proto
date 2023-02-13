@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/unity/game_object.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * This service can be used to retrieve information about the system's calibration state.
+ * It is primarily intended for spatial computing devices that synchronize digital and real-world artifacts with so called space pins.
+ * Note: right now, AVIKOM calibrates 'on the fly' and does not make use of this interface.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service CalibrationService {
+  /// returns the next uncalibrated/unassigned anchor/space pin
+  rpc GetUncalibratedSpacePin(google.protobuf.Empty) returns (avikom.unity.GameObject) {
+  }
+
+  /// get the names of all world anchors/space pins; intended for situations where the user should decide which target to calibrate next
+  rpc GetSpacePinNames(google.protobuf.Empty) returns (SpacePinNames) {
+  }
+}
+
+/**
+ * A list of all calibration objects/space pin names.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message SpacePinNames {
+  repeated string names = 1;  /// list of names
+}

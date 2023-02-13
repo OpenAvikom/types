@@ -1,0 +1,22 @@
+
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/glasses/interaction_type.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * This message describes a user interaction with a virtual or real-world artifact.
+ * The kind and target of an interaction is communicated.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+ message InteractionEvent {
+    InteractionType type = 1;   /// type of interaction (e.g. click, touch, drag)
+    string target = 2;          /// the unique name of the targt object
+  }
+  

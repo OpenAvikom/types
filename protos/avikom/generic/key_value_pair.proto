@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * This message is used to transfer associated information (i.e. slots extracted by rasa). 
+ * @author Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message KeyValuePair {
+  string key = 1; /// defines the value data type; informs consumer how to parse value
+  string value = 2; /// value holds information serialized as string and needs to be parsed by consumer
+}

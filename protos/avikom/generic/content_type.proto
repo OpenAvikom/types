@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * Defines the type of an Instruction.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+enum ContentType {
+    CONTENT_UNKNOWN = 0; /// no content type specified; should not be used actively
+    CONTENT_IMAGE = 1; /// shows 2-D images
+    CONTENT_VIDEO = 2; /// shows videos
+    CONTENT_TEXT = 3; /// shows instructions in text form; is also used to generate speech output if ssml is not defined
+    CONTENT_AUDIO = 4; /// plays audio (e.g. background music)
+    CONTENT_VISUAL = 5; /// shows images or holograms situated in space
+    CONTENT_EXTERNAL = 6; /// will be opened with the default OS application
+    CONTENT_SSML = 7; /// is used for enhanced tts output
+}

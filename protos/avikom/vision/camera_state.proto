@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package avikom.vision;
+
+option csharp_namespace = "Avikom.Types.Vision";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/vision";
+option java_package = "app.avikom.types.vision";
+
+
+/**
+ * This message represents the camera state mostly associated with Unity as only one service may use the system's camera at a time.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+enum CameraState {
+  UNALLOCATED = 0;     /// camera is not allocated or the state is unknown
+  VUFORIA = 1;         /// camera is used for image target tracking by Vuforia
+  WEB_RTC = 2;         /// camera is used by remote communication with WebRTC
+  SPECTATOR_VIEW = 3;  /// camera is used by the spectator view to track the QR code for device coupling
+}
+
+
+/**
+ * This message represents the EVENT or REQUEST to acquire the camera.
+ * Whether the camera can be acquired depends on its current state. 
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+enum CameraTrigger {
+  RELEASE = 0;                /// release the camera
+  ACQUIRE_VUFORIA = 1;        /// request acquisition for image target tracking
+  ACQUIRE_WEB_RTC = 2;        /// request acquisition for remote communication
+  ACQUIRE_SPECTATOR_VIEW = 3; /// request acquisition for spectator view coupling
+}

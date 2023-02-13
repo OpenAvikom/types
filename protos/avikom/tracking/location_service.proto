@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package avikom.tracking;
+
+import "avikom/math/vector3d.proto";
+import "avikom/unity/game_object.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Avikom.Types.Tracking";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/tracking";
+option java_package = "app.avikom.types.tracking";
+
+
+/**
+ * This services provides the scene location of an object either absolute to the scene's origin or relative to another entity (e.g. the user).
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service LocationService {
+  /// returns the absolute position of an object relative to the scenes origin
+  rpc GetScenePosition(TargetRequest) returns (stream avikom.math.Vector3D) {
+
+  }
+
+  /// returns the  position of an object relative to the object/entity mentioned in `TargetRequest`
+  rpc GetRelativePosition(TargetRequest) returns (stream avikom.math.Vector3D) {
+
+  }
+}
+
+/**
+ * This message is used to request an entities location.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message TargetRequest {
+  string target = 1;   /// the object/entity that should be tracked
+  int32 sleep_ms = 2;  /// the sleep interval between messages; should be equal or larger than time needed to process messages; a higher value reduces load on the service and on the network 
+  string watcher = 3;  /// the origin of relative requests
+}

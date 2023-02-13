@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * Indicates the RPC endpoints a peer implements/provides.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+enum RpcEndpoint {
+  ENDPOINT_UNKNOWN = 0; /// default; should not be used actively
+  ENDPOINT_SCENE_CONSUMER = 1; /// peer implements SceneConsumerService
+  ENDPOINT_MEDIA_FOLLOWER = 2; /// peer implements MediaFollowerService
+  ENDPOINT_REMOTE_CONTROL = 3; /// peer implements RemoteControlService
+  ENDPOINT_AUDIO_PEER_CONTROL = 4; /// peer implements AudioPeerControlService
+  ENDPOINT_GAZE = 5; /// peer implements GazeService
+  ENDPOINT_IMAGE = 6; /// peer implements ImageService
+  ENDPOINT_LOCATION = 7; /// provides relative position of an object to a target object; peer implements LocationService
+  ENDPOINT_INTERACTION_EVENT = 8; /// peer implements InteractionEventService
+  ENDPOINT_SERVICE_PROVIDER = 9; /// peer implements ServiceProviderService
+  ENDPOINT_RUNTIME_STEP_CONSUMER = 10; /// peer implements RuntimeStepConsumerService
+}

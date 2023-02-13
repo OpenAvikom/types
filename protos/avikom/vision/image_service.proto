@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package avikom.vision;
+
+import "avikom/vision/image_info.proto";
+import "avikom/vision/image.proto";
+
+option csharp_namespace = "Avikom.Types.Vision";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/vision";
+option java_package = "app.avikom.types.vision";
+
+
+/**
+ * Streams images and videos. An `ImageStream` will send images until the stream is closed by the client.
+ * Images are streamed in data chunks where the first chunk of each image is marked by `Image.info`.
+ * Every following chunk will have the `Imaga.data` field set until the next image starts.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service ImageService {
+  /// returns an image and closes the connection aftewards
+  rpc GetImage(ImageInfo) returns (stream Image) {}; 
+  /// returns a series of image where each new image will be prepend with an `ImageInfo`
+  rpc GetVideo(ImageInfo) returns (stream Image) {};
+}

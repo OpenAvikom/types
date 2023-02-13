@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/issue.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+/**
+ * Query an issue from the storage or the session manager. Fields can be combined and intersections will be returned.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message IssueQuery {
+    string id = 1; /// when set, the IssueList will only contain one element or an error is raised
+    avikom.assistance.IssueStatus status = 2;  /// when set, only issues with this status will be returned
+    uint64 user_id = 3;  /// when set, only issues assigned to the user will be returned
+  }

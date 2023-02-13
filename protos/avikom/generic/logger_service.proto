@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/generic/result.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/*
+ * This service receives debug messages and handles them. 
+ * Currently not in use.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service LoggerService {
+
+  /// Logs a certain message and displays it in the console
+  rpc Log (Message) returns (Result) {
+    option (google.api.http) = {
+      post: "/v1/logger"
+      body: "*"
+      additional_bindings: { post: "/v1/logger/{origin}" }
+      additional_bindings: { post: "/v1/logger/{origin}/{level}" }
+    };
+  }
+}
+
+/*
+ * A message specifying the log combining the log level, the logging message and the origin
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Message {
+    LogLevel level = 1; /// holds the log level of the message
+    string content = 2; /// holds the log message
+    string origin = 3; /// which service issued the log
+}
+
+/*
+ * The LogLevel specifies the criticality of a log
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+enum LogLevel {
+  DEBUG = 0; /// default level used for debugging
+  INFO = 1; /// information that might be of interest to developers also during production
+  WARN = 2; /// warnings that should be of interest to developers and can foreshadow future errors 
+  ERROR = 3; /// errors that are of interest to developers and break functionality
+  FATAL = 4; /// erros that result in total or partial system failure
+}
+

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/options/options.proto";
+import "avikom/generic/rpc_endpoint.proto";
+import "avikom/generic/user.proto";
+import "avikom/generic/modality.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * A representation of a service system to connect to or to exchange data with.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Peer {
+  option (avikom.options.schema_definition) = true;
+
+  string name = 1 [(avikom.options.schema).unique = true]; /// unique identifier of peer
+  string ip = 2; /// the ip under which the peer can be reached
+  string host_name = 3; /// name of the host; only interpreted if ip not set
+  int32 port = 4; /// port under which the peer can be reached
+  User user = 6; /// the user currently associated with that peer
+  Modality modal_fitness = 7; /// the modality or combination of modalities the peer supports
+  string gateway = 8; /// a gateway URL in cases where the peer cannot be reached directly
+	repeated string services = 10;  /// a list of services the peer provides for task step resolution
+	repeated avikom.generic.RpcEndpoint endpoints = 11;  /// a list of endpoints that are provied by the peer
+}
+
+/**
+ * A list of peers that is commonly associated with steps and or runtime task steps.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message PeerList {
+  repeated Peer peers = 1;  /// A list of peers. 
+}
+

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/options/options.proto";
+import "avikom/assistance/task.proto";
+import "avikom/unity/game_object.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * Describes the location/context of a task. This might be an office or a lab.
+ * The `tasks` field should only contain tasks that can be intialized without further information.
+ * For instance, when a task requires to be prepened by another task, it should be mentioned here.
+ * Thus, an `Issue` might contain a task that is not mentioned in `Session.tasks`.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Scene {
+  option (avikom.options.schema_definition) = true;
+
+  string name = 1 [ (avikom.options.schema).unique = true ];   /// a unique name for the location/context
+  repeated Task tasks = 2; // all the tasks that can be conducted without further information
+}

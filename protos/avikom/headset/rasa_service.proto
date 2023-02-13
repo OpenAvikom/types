@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package avikom.headset;
+
+import "avikom/headset/rasa_message.proto";
+import "avikom/generic/result.proto";
+
+option csharp_namespace = "Avikom.Types.Headset";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/headset";
+option java_package = "app.avikom.types.headset";
+
+
+/**
+ * This service manages the user input provided through speech and text.
+ * @author Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+service RasaService {
+  /// tries to use the provided information to resolve a task step 
+  rpc SetIntent(RasaMessage) returns (avikom.generic.Result) {}
+  /// returns all intents that can be used to resolve the current task step
+  rpc GetIntents(RasaQuery) returns (RasaResult) {}
+}
+
+/**
+ * A query passed to RasaService
+ * @author Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message RasaQuery{
+  uint64 user_id = 1; /// the id of the user for which information shall be queried
+}
+
+/**
+ * A list containing intents.
+ * @author Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message RasaResult {
+  repeated string intents = 1; /// a list of intents that can be used to resolve task steps
+}

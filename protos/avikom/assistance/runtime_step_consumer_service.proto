@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/generic/peer.proto";
+import "avikom/assistance/runtime_step_list.proto";
+import "avikom/assistance/runtime_step_state.proto";
+import "avikom/assistance/runtime_step_state_change.proto";
+
+import "avikom/generic/result.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A runtime step consumer is interested in runtime step information. If scene and task information are
+ * required, peers should provide `SceneConsumerProvider` as well.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service RuntimeStepConsumerService {
+  /// Updates the currently eligible task steps.
+  rpc SetRuntimeSteps(RuntimeStepList) returns (avikom.generic.Result) {}
+  /// When a `RuntimeTaskStep` changes its state, consumers will be informed via this call.
+  rpc UpdateRuntimeStep(avikom.assistance.RuntimeStepStateChange) returns (google.protobuf.Empty) {}
+  /// When peer information changes while a step is conducted, this method should be used to inform consumers. 
+  rpc SetPeers(avikom.generic.PeerList) returns (avikom.generic.Result) {}
+}

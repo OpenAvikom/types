@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/assistance_level.proto";
+import "avikom/assistance/instruction_text.proto";
+import "avikom/assistance/instruction_media.proto";
+import "avikom/assistance/runtime_step_list.proto";
+import "avikom/assistance/session.proto";
+import "avikom/assistance/session_query.proto";
+import "avikom/options/options.proto";
+import "avikom/generic/modality.proto";
+import "avikom/generic/result.proto";
+import "avikom/generic/peer.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+/*
+ * This service initializes sessions and starts the related Camunda processes.
+ * It also processes TaskStep completion and failure events and forwards these information to Camunda.
+ * Furthermore it processes environmental factors that may influence a session and can be used to request currently eligible `RuntimeTaskSteps`.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+service SessionService {
+  /// pushes an event to Camunda for processing
+  rpc EmitEvent(SessionEvent) returns (avikom.generic.Result) {}
+  /// completes an event; `task_id` is required; `result` will be forwarded to the related service worker if provided.
+  rpc CompleteTaskStep(TaskEvent) returns (avikom.generic.Result) {}
+  /// fails an event; `task_id` is required; This will most likely lead to Camunda advertising the related `TaskStep` again or process failure if the maximum amount of retries has been reached.
+  rpc FailTaskStep(TaskEvent) returns (avikom.generic.Result) {}
+  /// returns the currently eligible `RunTimeTaskSteps` assigned to a session
+  rpc GetCurrentStep(SessionQuery) returns (avikom.assistance.RuntimeStepList) {}
+  /// starts a session; a mean to identify the user (e.g. `user_id` or `username`) must be provided
+  rpc StartSession(SessionQuery) returns (avikom.generic.Result) {}
+  /// suspends a session; it can be continued later on; can be queried with `session_id` or means to identify the user
+  rpc SuspendSession(SessionQuery) returns (avikom.generic.Result) {}
+  /// removes the session from the system; can be queried with `session_id` or means to identify the user
+  rpc EndSession(SessionQuery) returns (avikom.generic.Result) {}
+  /// updates `brightness` and/or `volume` (loudness) of a session; with only a scene name passed, all related sessions should be updated
+  rpc UpdateEnvironmentalFactors(EnvironmentalFactorsUpdate) returns (avikom.generic.Result) {}
+  /// Registers or updates a peer of a user for a running session. The new peer receives the currently processed and orchestrated RuntimeStepList.
+  rpc RegisterUserPeer(avikom.generic.Peer) returns (avikom.assistance.RuntimeStepList) {}
+  /// Ends all sessions and all Camunda processes
+  rpc EndAllProcesses(google.protobuf.Empty) returns (avikom.generic.Result) {}
+}
+
+/**
+ * A message to update current environmental factors such as brightness and/or volume for a user session or a scene.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message EnvironmentalFactorsUpdate {
+  string scene_name = 1;  /// scene/location name where data has been tracked
+  uint64 user_id = 2;     /// when set, relates info to the current session of the user
+  string session_id = 3;  /// when set, relates info the this specific session
+  float brightness = 5;   /// environmental lightning/brightness in lumen
+  float volume = 6;       /// environmental loudness/volume in dbA
+}
+/*
+ * An event triggered by a peer to be escalated to the BPM engine (Camunda)
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message SessionEvent {
+  string session_id = 1;           /// session of the event
+  string event_name = 2;           /// the unique event name
+  avikom.generic.Peer sender = 3;  /// who triggered the event
+}
+
+/*
+ * An event that should be processed by the BPM engine (Camunda) and/or AVIKOM services.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message TaskEvent {
+  string task_id = 1;  /// the ID of the current service task/RTS in which the event was triggered
+  string result = 2;   /// the event result/outcome; in cases of a failed task this might me an error decription
+}
+
+/*
+ * A list of instructions with resolved fields.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message InstructionList {
+  repeated InstructionText instructions = 1;                  /// textual instructions for this task step
+  repeated InstructionMedia media = 2;                        /// media content for this task step; includes prefabs and world objects
+}

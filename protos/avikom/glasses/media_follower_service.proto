@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/generic/result.proto";
+import "avikom/generic/content_type.proto";
+import "google/protobuf/empty.proto";
+import "avikom/glasses/media_info.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * A media follower receives events such as playing a video or stopping it and extends the user experience accordingly.
+ * For instance, an audio peer might play the (processed) audio stream of a video. 
+ * Media followers are passive and need to be addressed to get the required information.
+ * Whether pause and stop require individual treatment depends on the follower in question.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+ service MediaFollowerService {
+  
+  /// informs the follower that a media file playback started
+  rpc Play(MediaInfo) returns (avikom.generic.Result) {}
+
+  /// informs the follower that a media file has been paused
+  rpc Pause(google.protobuf.Empty) returns (avikom.generic.Result) {}
+
+  /// informs the follower that a media file has been stopped
+  rpc Stop(google.protobuf.Empty) returns (avikom.generic.Result) {}
+}

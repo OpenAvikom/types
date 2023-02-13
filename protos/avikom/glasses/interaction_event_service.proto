@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package avikom.glasses;
+
+import "avikom/glasses/interaction_type.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "avikom/glasses/interaction_event.proto";
+
+option csharp_namespace = "Avikom.Types.Glasses";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/glasses";
+option java_package = "app.avikom.types.glasses";
+
+
+/**
+ * This service sends a stream of user interaction events to the caller.
+ * This way user interaction might be extended with feedback from other peers (e.g. audio feedback for interaction with GUI elements).
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+ service InteractionEventService {
+   /// returns a stream of interaction events for a session with `session_id`
+   rpc GetInteractionEvent (google.protobuf.Empty) returns (stream InteractionEvent) {}
+}
+
+/**
+ * This message is DEPRECATED; This message is used to query user interaction events of a particular session. 
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message InteractionEventQuery {
+  string session_id = 1;  // id of the requested session
+}

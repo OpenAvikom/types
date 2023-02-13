@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package avikom.headset;
+
+option csharp_namespace = "Avikom.Types.Headset";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/headset";
+option java_package = "app.avikom.types.headset";
+
+
+/**
+ * This enum describes common functional sounds that can be played back on an auditory peer
+ * to provide feedback to a user.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+*/
+enum FunctionalSound{
+    SOUND_DEFAULT = 0; /// generates no output
+    SOUND_GUIDANCE = 1; /// should be used when trying to guide the user to specific location
+    SOUND_INSTRUCTION_INFO = 2; /// should be used for instructions with ContentStyle "INFO"
+    SOUND_INSTRUCTION_ALERT = 3; /// should be used for instructions with ContentStyle "WARNING"
+    SOUND_INSTRUCTION_ALARM = 4; /// should be used for instructions with ContentStyle "CRITICAL"
+    SOUND_ERROR = 5; /// should be used when notifying a user that an error occured
+    SOUND_TASK_COMPLETED = 6; /// should be used for providing positive feedback in key moments (i.e. on completion of a task)
+    SOUND_SYSTEM_PROGRESS_WAIT = 7; /// should be used to notify user that the system is processing user input 
+    SOUND_NEXT_STEP_IN_BROWSER = 8; /// should be used when next step is shown in step browser 
+    SOUND_PREVIOUS_STEP_IN_BROWSER = 9; /// should be used when previous step is shown in step browser
+    SOUND_BUTTON_DOWN = 10; /// should be used when user presses a button
+    SOUND_BUTTON_UP = 11; /// shuold be used when user lifts button press
+    SOUND_TAP = 12; /// should be used when user taps
+    SOUND_GRASP_START = 13; /// should be used when user grasps a virtual object 
+    SOUND_GRASP_STOP = 14; /// should be used when user releases a a virtual object
+  }

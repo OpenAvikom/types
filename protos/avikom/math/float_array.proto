@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package avikom.math;
+
+option csharp_namespace = "Avikom.Types.Math";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/math";
+option java_package = "app.avikom.types.math";
+
+
+/**
+ * A simple list of floats. Might be used in a variety of context. E.g. as a row to a matrix.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message FloatArray {
+    repeated float items = 1;  /// list of floating point numbers
+}

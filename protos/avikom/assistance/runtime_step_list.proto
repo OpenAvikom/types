@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/runtime_task_step.proto";
+import "avikom/generic/peer.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A list of `RuntimeTaskSteps`. It also contains a list of `Peers` which can be used to conduct the passed steps.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message RuntimeStepList {
+    repeated RuntimeTaskStep steps = 1;      /// currently active task steps to be done 
+    repeated avikom.generic.Peer peers = 2;  /// a list of peers that can be used to solve task steps
+}

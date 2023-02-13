@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/scene.proto";
+import "avikom/assistance/task.proto";
+import "avikom/assistance/task_step.proto";
+import "avikom/generic/result.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This services stores scene, task and task step definitions.
+ * It should not actively alter any of the provided data though.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service TaskStorageService {
+
+  /// adds a scene to the storage; raises an error if the scene already exists
+  rpc AddScene(Scene) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      post : "/v1/storage/scenes"
+      body : "*"
+    };
+  }
+
+  /// updates an existing scene; will raise an error when the scene does not exist
+  rpc UpdateScene(Scene) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      patch : "/v1/storage/scenes"
+      additional_bindings : {patch : "/v1/storage/scenes/{name}"}
+      body : "*"
+    };
+  }
+
+  /// returns a scene with name equals to `name`
+  rpc GetScene(TaskStorageQuery) returns (Scene) {
+    option (google.api.http) = {
+      get : "/v1/storage/scenes/{name}"
+    };
+  }
+
+  /// returns a list of all currently available scenes; fields such as task will be completely resolved
+  rpc GetAllScenes(google.protobuf.Empty) returns (SceneList) {
+    option (google.api.http) = {
+      get : "/v1/storage/scenes"
+    };
+  }
+
+  /// adds a task to the storage; raises an error if the task already exists
+  rpc AddTask(Task) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      post : "/v1/storage/tasks"
+      body : "*"
+    };
+  }
+
+  /// updates an existing task; will raise an error when the task does not exist
+  rpc UpdateTask(Task) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      patch : "/v1/storage/tasks"
+      additional_bindings : {patch : "/v1/storage/tasks/{name}"}
+      body : "*"
+    };
+  }
+
+  /// returns a task with name equals to `name`
+  rpc GetTask(TaskStorageQuery) returns (Task) {
+    option (google.api.http) = {
+      get : "/v1/storage/tasks/{name}"
+    };
+  }
+
+  /// returns a list of all currently available tasks; fields such as steps will be completely resolved
+  rpc GetAllTasks(google.protobuf.Empty) returns (TaskList) {
+    option (google.api.http) = {
+      get : "/v1/storage/tasks"
+    };
+  }
+
+  /// adds a task step to the storage; raises an error if the step already exists
+  rpc AddTaskStep(TaskStep) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      post : "/v1/storage/steps"
+      body : "*"
+    };
+  }
+
+  /// updates an existing task step; will raise an error when the step does not exist
+  rpc UpdateTaskStep(TaskStep) returns (avikom.generic.Result) {
+    option (google.api.http) = {
+      patch : "/v1/storage/steps"
+      additional_bindings : {patch : "/v1/storage/steps/{name}"}
+      body : "*"
+    };
+  }
+
+  /// returns a task step with name equals to `name`
+  rpc GetTaskStep(TaskStorageQuery) returns (TaskStep) {
+    option (google.api.http) = {
+      get : "/v1/storage/steps/{name}"
+    };
+  }
+
+  /// returns a list of task steps
+  rpc GetAllTaskSteps(google.protobuf.Empty) returns (TaskStepList) {
+    option (google.api.http) = {
+      get : "/v1/storage/steps"
+    };
+  }
+}
+
+/**
+ * A query to retrieve a scene, task or task step via its name.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message TaskStorageQuery {
+  string name = 1;  /// name of a scene, task or task step
+}
+
+/**
+ * A list of scenes.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message SceneList {
+  repeated Scene scenes = 1;  // a scene list
+}
+
+/**
+ * A list of tasks.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+ message TaskList {
+  repeated Task tasks = 1;  // a task list
+}
+
+/**
+ * A list of task steps.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message TaskStepList {
+  repeated TaskStep steps = 1;  // a task step list
+}

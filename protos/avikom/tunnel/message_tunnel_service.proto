@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package avikom.tunnel;
+
+import "avikom/tunnel/server_to_client.proto";
+import "avikom/tunnel/client_to_server.proto";
+
+option csharp_namespace = "Avikom.Types.Tunnel";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/tunnel";
+option java_package = "app.avikom.types.tunnel";
+
+/**
+ * This services allows clients behind a firewall to offer their services in the AVIKOM network.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service MessageTunnelService {
+  /// Register a peer with a tunneled server connection.
+  rpc RegisterTunneled (stream ClientToServer) returns (stream ServerToClient) {}
+}

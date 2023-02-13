@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package avikom.math;
+
+option csharp_namespace = "Avikom.Types.Math";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/math";
+option java_package = "app.avikom.types.math";
+
+
+import "avikom/math/float_array.proto";
+
+/**
+  An list of `FloatArrays` meant to store matrices.
+  @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+  */
+message FloatMatrix {
+    repeated FloatArray rows = 1;  /// list of `FloatArrays`
+}

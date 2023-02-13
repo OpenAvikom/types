@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/unity/transpose.proto";
+import "avikom/unity/asset_bundle.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/**
+ * This message describes a (virtual) object in the current scene.
+ * Properties have been chosen to allo Unity-based peers to create instances from such a message.
+ * However, this message might also be used in contexts where rendering is not necessary.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message GameObject {
+    string name = 1;                    /// scene name of the object
+    Transpose transpose = 2;            /// the pose of the object relative to its parent
+    string prefab = 3;                  /// addressable uri of the (audio)visual appearance blueprint/prefab
+    string parent = 4;                  /// the parent's name; if not set, an object will be attached to the scene's root or an equivalent group
+    repeated GameObject children = 5;   /// a list of nested `GameObjects`; parent will be this object if not stated differently
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/choice_item.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This message describes a choice a peer/user can make.
+ * It contains state information for each individual choice that can be made
+ * to enable multiple selections in a looped interaction.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message ChoicesConfig {
+    repeated avikom.assistance.ChoiceItem items = 1;  // a list of choices to choose from
+    string default_value = 2;       // If set, this value may be returned when no choice has been made. If not, a valid item value must be returned.
+}

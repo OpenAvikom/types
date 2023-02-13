@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package avikom.camunda;
+
+import "avikom/camunda/variable.proto";
+
+option csharp_namespace = "Avikom.Types.Camunda";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/camunda";
+option java_package = "app.avikom.types.camunda";
+
+
+/**
+ * A storable representation of an external task published by the BPM engine (Camunda).
+ * The field description has been derived from the official REST-API documentation.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message ExternalTask {
+  string activity_id = 1;             /// id of the activity that this external task belongs to
+  string activity_instance_id = 2;    /// id of the activity instance that the external task belongs to
+  string error_message = 3;           /// error message that was supplied when the last failure of this task was reported
+  string execution_id = 4;            /// id of the execution that the external task belongs to
+  string id = 5;                      /// external task's id
+  string lock_expiration_time = 6;    /// date that the task's most recent lock expires or has expired
+  string process_definition_id = 7;   /// id of the process definition the external task is defined in
+  string process_definition_key = 8;  /// key of the process definition the external task is defined in
+  string process_instance_id = 9;     /// id of the process instance the external task belongs to
+  string tenant_id = 10;              /// id of the tenant the external task belongs to
+  int32 retries = 11;                 /// number of retries the task currently has left
+  string worker_id = 12;              /// id of the worker that posesses or posessed the most recent lock
+  int32 priority = 13;                /// priority of the external task
+  string topic_name = 14;             /// external task's topic name
+  repeated Variable variables = 15;   /// a set of local and global variables passed to the external service
+}

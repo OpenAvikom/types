@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/scene.proto";
+import "avikom/assistance/task.proto";
+import "avikom/assistance/task_step.proto";
+import "avikom/generic/result.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A scene consumer gets a copy of the currently set scene. It's also possible
+ * to only update the task of the current scene to enable 'side-tracking' when
+ * necessary.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service SceneConsumerService {
+  /// Sets the context of the task to be conducted. May or may not be considered by the consumer.
+  rpc SetScene(Scene) returns (avikom.generic.Result) {}
+  /// Returns the currently set scene.
+  rpc GetScene(google.protobuf.Empty) returns (Scene) {}
+  /// Sets the task that is currently conducted. May or may not be considered by the consumer.
+  rpc SetTask(Task) returns (avikom.generic.Result) {}
+}

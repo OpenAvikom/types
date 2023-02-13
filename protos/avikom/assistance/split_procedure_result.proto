@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/options/options.proto";
+import "avikom/assistance/task.proto";
+import "avikom/generic/user.proto";
+import "avikom/math/float_matrix.proto";
+
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/*
+ * Results of a previously conducted split procedure, analyzed by CASPA (https://doi.org/10.3389/fpsyg.2020.597913).
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message SplitProcedureResult {
+    option (avikom.options.schema_definition) = true;
+    avikom.generic.User user = 1;        /// investigated user
+    Task task = 2;                       /// investigated task
+    avikom.math.FloatMatrix matrix = 3;  /// CASPA probability matrix
+}

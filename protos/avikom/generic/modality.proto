@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * A message specifying one of three- or a combination of three interaction modalities supported 
+ * for, for example, instructions, peers, user_profiles and sessions.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message Modality {
+    float visual = 1; /// things you see (Sight)
+    float auditory = 2; /// things you hear (Hearing)
+    float tactile = 3; /// things you touch/feel (Touch)
+}

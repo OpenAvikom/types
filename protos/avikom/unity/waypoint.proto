@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/math/vector3d.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/**
+ * This describes a point in space and its conceptual neighbours.
+ * Waypoints are used to savely guide users from one location to another.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message Waypoint {
+    string name  = 1;                    /// waypoint name to be adressable
+    avikom.math.Vector3D location = 2;   /// location of the waypoint in world coordinates
+    repeated string neighbors = 3;       /// neightbouring waypoints; if not set they might be derived from other waypoint neighbourhood relationships
+    float threshold = 4;                 /// a 'bubble' (in meters) around a waypoint that determines when a waypoint is considered reached
+}

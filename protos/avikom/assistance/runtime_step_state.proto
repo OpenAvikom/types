@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A step state resembled an `IssueState` in many cases but is more detailed.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+ enum RuntimeStepState {
+    STATE_UNKNOWN = 0;     /// default; might be treated as an error; should not be set explicitely
+    STATE_CREATED = 1;     /// An RTS has been created. This is usually not communicated to peers/consumers. 
+    STATE_PENDING = 5;     /// The task has been communicated to consumers and now needs to be resolved.
+    STATE_COMPLETED = 10;  /// RTS has been completeted successfully
+    STATE_FINAL = 11;      /// RTS process ended with this step
+    STATE_FAILED = 15;     /// RTS processing failed
+    STATE_CANCELLED = 20;  /// RTS became invalid and has been cancelled
+    STATE_ERROR = 25;      /// An error that is not a cause of process- or consumer-related issues.
+}

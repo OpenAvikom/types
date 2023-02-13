@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package avikom.vision;
+
+option csharp_namespace = "Avikom.Types.Vision";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/vision";
+option java_package = "app.avikom.types.vision";
+
+
+/**
+ * This message is a header for image data transfer in chunks.
+ * It should always be set in the first `Image` message send to an image receiver.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message ImageInfo {
+  int32 size = 1;        /// size of the image in bytes
+  int32 chunk_size = 2;  /// transfer chunk size in bytes
+  bool compressed = 3;   /// whether the image has been compressed or send raw; NOTE: this field is not considered right now by the `ImageService`
+  int32 width = 4;       /// pixel width of the image
+  int32 height = 5;      /// pixel height of the image
+}

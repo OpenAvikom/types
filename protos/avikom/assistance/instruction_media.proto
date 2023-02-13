@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/instruction_meta.proto";
+import "avikom/assistance/instruction_media_value.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This message describes a media instruction. This includes the instruction's (MIME) type and either an URI or the media as a binary stream.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message InstructionMedia {
+    InstructionMeta meta = 1;
+    InstructionMediaValue content = 11;
+    InstructionMediaValue preview = 12;
+}

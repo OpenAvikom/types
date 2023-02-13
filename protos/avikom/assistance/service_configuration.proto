@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/generic/key_value_pair.proto";
+import "avikom/generic/peer.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * A message that combines peer topics and related service configurations meant for TaskStep definitions.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ **/
+message ServiceConfiguration {
+  string topic = 1;                                     /// topic related to this service 
+  repeated avikom.generic.KeyValuePair parameters = 2;  /// key-value pairs to configure the requested service
+}

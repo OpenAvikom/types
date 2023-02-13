@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package avikom.generic;
+
+import "avikom/options/options.proto";
+import "avikom/generic/user.proto";
+import "avikom/generic/modality.proto";
+
+option csharp_namespace = "Avikom.Types.Generic";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/generic";
+option java_package = "app.avikom.types.generic";
+
+
+/**
+ * A more elaborate profile of a user including additional data (i.e. "Stammdaten").
+ * User Attribution is mandatory, all other fields are optional
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ */
+message UserProfile {
+    option (avikom.options.schema_definition) = true;
+
+    User user = 1; /// the user object that belongs to this profile; mandatory information
+    string email = 2; /// a valid e-mail address to contact the user; optional information
+    string department = 3; /// the department the user works in; optional information
+    string phone_number = 4; /// a phone number under which the user can be reached; optional information
+    string position = 5; /// the job title of the user; optional information
+    Modality modal_preferences = 6; /// indicating if the user prefers a specific modality above others; optional information
+    float assistance_decrease = 7; /// the "velocity" with which amount of assistance is decreased; 0 means no decrease; 1 max. decrease?; optional information
+}

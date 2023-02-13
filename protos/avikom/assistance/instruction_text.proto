@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/instruction_meta.proto";
+import "avikom/assistance/instruction_text_value.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * This message should be used for textual instruction that can be displayed or spoken.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message InstructionText {
+    InstructionMeta meta = 1;           /// context information for the instruction
+    ContentStyle content_style = 10;    /// styling hints for the text instruction  
+    InstructionTextValue content = 11;  /// the runtime value of an instruction, can include moustache fields
+    InstructionTextValue preview = 12;  /// optional field which will be shown during step preview; must not contain dynamic content
+}
+
+/**
+ * Defines the content style of a textual instruction. This should be used to transport contextual semantics such as urgency.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+enum ContentStyle {
+    STYLE_UNKNOWN = 0;   /// no content info available
+    STYLE_INFO = 1;      /// used for default instructions
+    STYLE_WARNING = 2;   /// used when caution is advises 
+    STYLE_CRITICAL = 3;  /// used when extreme caution is advises
+    STYLE_SUCESS = 4;    /// a positive success message
+    STYLE_ERROR = 5;     /// used for reporting errors
+  }
+  

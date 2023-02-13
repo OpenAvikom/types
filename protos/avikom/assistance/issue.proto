@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/assistance/scene.proto";
+import "avikom/assistance/task.proto";
+import "avikom/options/options.proto";
+import "avikom/generic/user.proto";
+import "avikom/generic/key_value_pair.proto";
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+
+/**
+ * An message that contains informations about (postponed) tasks and their state.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message Issue {
+  option (avikom.options.schema_definition) = true;
+
+  string id = 1 [(avikom.options.schema).unique = true]; /// id of a task; must be set for creation!
+  avikom.generic.User issuer = 2;                        /// who issued the task
+  string description = 3;                                /// an optional text message 
+  avikom.assistance.Scene scene = 4;                     /// location where the task needs to be conducted
+  avikom.assistance.Task task = 5;                       /// the task to be done
+  repeated avikom.generic.User include = 6;              /// users that are eligible for that task
+  repeated avikom.generic.User exclude = 7;              /// users that should not be eligible for that issue; only considered when include is empty
+  repeated avikom.generic.KeyValuePair parameters = 8;   /// this is passed to camunda
+  IssueStatus status = 9;                                /// status of the issue
+}
+
+
+/**
+ * The status of an issue. Can be used to find unresolved tasks and filter issue lists.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+enum IssueStatus {
+    ISSUE_UNKNOWN = 0;    /// default; should not be set explicitely
+    ISSUE_OPEN = 1;       /// issue needs to be resolved
+    ISSUE_ASSIGNED = 5;   /// issue has been assigned to a user
+    ISSUE_ACTIVE = 7;     /// issue is currently resolved by a user
+    ISSUE_CLOSED = 10;    /// issue has been resolved
+    ISSUE_REJECTED = 11;  /// issue cannot be resolved or has been declined 
+}
+
+
+/**
+ * A collection of `Issue` objects.
+ * @author Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+*/
+message IssueList {
+    repeated Issue issues = 1;
+}

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package avikom.assistance;
+
+import "avikom/options/options.proto";
+import "avikom/assistance/task_stereotype.proto";
+import "avikom/assistance/instruction_text.proto";
+import "avikom/assistance/instruction_media.proto";
+
+
+option csharp_namespace = "Avikom.Types.Assistance";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/assistance";
+option java_package = "app.avikom.types.assistance";
+
+/**
+ * This message describes a task step. A step describes an individual operation of a certain stereotype that 
+ * should be compatible with the 'Basic Action Concept' (BAC) of SDA-M.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message TaskStep {
+  option (avikom.options.schema_definition) = true;
+  string name = 1 [ (avikom.options.schema).unique = true ];  /// globally unique step name
+  TaskStereotype type = 3;                                    /// defines the kind of action to be conducted; defines the possible actions a user may conduct to process this step
+  repeated InstructionText instructions = 4;                  /// textual instructions for this task step
+  repeated InstructionMedia media = 5;                        /// media content for this task step, includes prefabs and such a like
+}

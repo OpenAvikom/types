@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package avikom.headset;
+
+import "avikom/generic/result.proto";
+import "avikom/headset/functional_sound.proto";
+import "avikom/headset/common_utterance.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "Avikom.Types.Headset";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/headset";
+option java_package = "app.avikom.types.headset";
+
+
+/**
+ * This service controls an auditory peer. It can be used to trigger sounds, speech output or change 
+ * the mode of the auditory peer.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+*/
+service AudioPeerControlService {
+  /// sets the mode of the auditory peer. 
+  rpc SetMode (AudioPeerModeRequest) returns (avikom.generic.Result) {}
+  /// triggers immediate playback of a sound. 
+  rpc PlaySound (FunctionalSoundRequest) returns (avikom.generic.Result) {}
+  /// triggers generation of TTS output and playback on the auditory peer.
+  rpc Say(SayRequest) returns (avikom.generic.Result) {}
+}
+
+/**
+ * A Mode request passed to SetMode.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+*/
+message AudioPeerModeRequest{
+  Mode mode = 2; /// the mode the auditory peer should activate
+}
+
+/**
+ * A FunctionalSound request that either includes a standardized functional sound or the name of 
+ * an audio file to be played. The audio file has to be available in the web-client data path "data/Default/Sounds".
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+*/
+message FunctionalSoundRequest{
+  avikom.headset.FunctionalSound functional_sound = 2; /// a set of predefined sounds to provide feedback to users
+  string other_sound = 3; /// 
+}
+
+/**
+ * A request that either includes a standardized utterance or custom output to be played back via TTS. 
+ * The output is queued with other speech output.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+*/
+message SayRequest{
+  string utterance = 2; /// a string representation of what should be generated as speech
+  avikom.headset.CommonUtterance common_utterance =3; /// a set of predefined speech outputs
+}
+
+/**
+ * Defines the mode that should be activated for the auditory peer. The mode changes the auditory input and output 
+ * behaviour of the auditory peer.
+ * @author: Lars Schalkwijk <lars.schalkwijk@fh-bielefeld.de>
+*/
+enum Mode{
+  MODE_UNKNOWN = 0; /// represents an unset mode; should not be used actively
+  MODE_DEFAULT = 1; /// resets the auditory peer to plain input-output mode
+  MODE_TRANSPARENT = 2; /// sound picked up be the microphone is played back via the headphones
+}

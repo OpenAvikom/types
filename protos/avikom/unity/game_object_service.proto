@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package avikom.unity;
+
+import "avikom/generic/result.proto";
+import "avikom/unity/game_object.proto";
+import "google/api/annotations.proto";
+import "avikom/unity/asset_bundle.proto";
+
+option csharp_namespace = "Avikom.Types.Unity";
+option go_package = "gitlab.ub.uni-bielefeld.de/avikom/go-types/avikom/unity";
+option java_package = "app.avikom.types.unity";
+
+
+/**
+ * Provides an interface to add virtual objects to the current scene.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+service GameObjectService {
+    
+    /// adds an object to the scene
+    rpc Add(GameObject) returns (avikom.generic.Result) {
+        option (google.api.http) = {
+            post: "/v1/glasses/objects"
+            body: "*"
+          };
+    }
+
+    /// updates properties if a previously added object
+    rpc Set(GameObject) returns (avikom.generic.Result) {
+        option (google.api.http) = {
+            post: "/v1/glasses/objects/{name}"
+            body: "*"
+        };
+    }
+
+    /// returns current properties of a scene object
+    rpc Get(GameObjectQuery) returns (GameObject) {
+        option (google.api.http) = {
+            get: "/v1/glasses/objects/{name}"
+        };
+    }
+
+    /// uploads a bundle of assets that can be used for the creation of new objects
+    rpc AddBundle(stream AssetBundle) returns (avikom.generic.Result) {}
+}
+
+/**
+ * A query message to retrieve information about an object in the scene.
+ * @author: Alexander Neumann <alneuman@techfak.uni-bielefeld.de>
+ */
+message GameObjectQuery {
+    string name = 1;   /// unique name of the requested object
+}
