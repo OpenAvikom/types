@@ -1,0 +1,66 @@
+{
+    "well_known_services": {
+        "description": "Well-known service topics.",
+        "values": [
+            {
+                "name": "service_speech_recognition",
+                "description": "Provides speech recognition input",
+                "parameters": []
+            },
+            {
+                "name": "service_ocr",
+                "description": "Provides character-/text-recognition",
+                "parameters": [
+                    {
+                        "key": "regex"
+                    },
+                    {
+                        "key": "prefix"
+                    },
+                    {
+                        "key": "group"
+                    }
+                ]
+            },
+            {
+                "name": "service_number_input",
+                "description": "Offers number input to users; may be implemented via different methods (e.g. speech or keyboard)",
+                "parameters": [
+                    {
+                        "key": "default"
+                    },
+                    {
+                        "key": "min"
+                    },
+                    {
+                        "key": "max"
+                    }
+                ]
+            },
+            {
+                "name": "service_text_input",
+                "description": "Offers text input to users",
+                "parameters": [
+                    {
+                        "key": "regex"
+                    }
+                ]
+            },
+            {
+                "name": "service_location_event",
+                "description": "Triggers an event when a location has been reached (X)OR left",
+                "parameters": [
+                    {
+                        "key": "reached"
+                    },
+                    {
+                        "key": "left"
+                    },
+                    {
+                        "key": "threshold"
+                    }
+                ]
+            }
+        ]
+    }
+}
