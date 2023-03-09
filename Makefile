@@ -52,7 +52,7 @@ python_generate:
 
 python_package:
 	# VERSION must be set!
-	echo "__version__ = '${VERSION}'" > templates/python/avikom_types/version.py
+	echo "__version__ = '${VERSION}'" > $(PROTO_OUT)/python/avikom_types/version.py
 	python -m build \
 	--sdist \
 	--wheel \
