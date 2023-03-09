@@ -44,8 +44,8 @@ python_generate:
 	# make paths in pyi files absolute
 	find $(PROTO_OUT)/python/avikom_types \
 	-type f \( -iname \*.py -o -iname \*.pyi \) \
-	-exec sed -i '' \
-	-e 's/\(from \|import \|\[\|-> \|: \|.__module__. : .\)avikom\./\1avikom_types\.avikom\./g' {} \;
+	-exec sed \
+	-i 's/\(from \|import \|\[\|-> \|: \|.__module__. : .\)avikom\./\1avikom_types\.avikom\./g' {} \;
 	# add empty __init__ files for import
 	find $(PROTO_OUT)/python/avikom_types/* \
 	-type d -exec touch {}/__init__.py \;
