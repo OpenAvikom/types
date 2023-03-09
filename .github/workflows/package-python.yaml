@@ -27,7 +27,7 @@ jobs:
         if: "!startsWith(github.ref, 'refs/tags')"
         run: make python
         env:
-          VERSION: 0.0.0+git${{ github.sha }}
+          VERSION: 0.10.0.dev${{ github.sha }}
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
