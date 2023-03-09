@@ -10,25 +10,25 @@ jobs:
   build-python-pypi:
     name: Build and publish Python 🐍 distributions 📦 to PyPI 
     runs-on: ubuntu-latest
-  steps:
-  - uses: actions/checkout@master
-  - name: Set up Python 3.10
-    uses: actions/setup-python@v3
-    with:
-      python-version: "3.10"
-  - name: Generate and package
-    run: make python
-    env:
-      VERSION: ${{ github.ref_name }}
-  - name: Publish distribution 📦 to Test PyPI
-    uses: pypa/gh-action-pypi-publish@release/v1
-    with:
-      password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      repository_url: https://test.pypi.org/legacy/
-      packages_dir: generated/python/dist
-  - name: Publish distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags')
-    uses: pypa/gh-action-pypi-publish@release/v1
-    with:
-      password: ${{ secrets.PYPI_API_TOKEN }}
-      packages_dir: generated/python/dist
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Generate and package
+      run: make python
+      env:
+        VERSION: ${{ github.ref_name }}
+    - name: Publish distribution 📦 to Test PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository_url: https://test.pypi.org/legacy/
+        packages_dir: generated/python/dist
+    - name: Publish distribution 📦 to PyPI
+      if: startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages_dir: generated/python/dist
