@@ -18,10 +18,16 @@ jobs:
         with:
           java-version: "17"
           distribution: "adopt"
-      - name: Generate and package
+      - name: Generate and package tagged version
+        if: "startsWith(github.ref, 'refs/tags')"
         run: make java
         env:
           VERSION: ${{ github.ref_name }}
+      - name: Generate and package test version
+        if: "!startsWith(github.ref, 'refs/tags')"
+        run: make java
+        env:
+          VERSION: 0.10-SNAPSHOT
       - name: Publish package
         run: make java_publish
         env:
