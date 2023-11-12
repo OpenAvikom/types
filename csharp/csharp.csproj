@@ -48,4 +48,3 @@
             OutputDir="../generated/csharp/Avikom/Vision" CompileOutputs="false" />
     </ItemGroup>
 </Project>
-  
