@@ -31,13 +31,13 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.UnityTypes.Assistance.Task Task;
 
         // users that are eligible for that task
-        public Avikom.UnityTypes.Generic.User Include;
+        public Avikom.UnityTypes.Generic.UserSet Include;
 
         // users that should not be eligible for that issue; only considered when include is empty
-        public Avikom.UnityTypes.Generic.User Exclude;
+        public Avikom.UnityTypes.Generic.UserSet Exclude;
 
         // this is passed to camunda
-        public Avikom.UnityTypes.Generic.KeyValuePair Parameters;
+        public Avikom.UnityTypes.Generic.KeyValuePairSet Parameters;
 
         // status of the issue
         public Avikom.UnityTypes.Assistance.IssueStatus Status;
@@ -81,23 +81,47 @@ namespace Avikom.UnityTypes.Assistance
                 Task.SetValue(proto.Task);
             }
 
-            if (Include == null) { Include = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.User>(); }
-            if (proto.Include != Avikom.UnityTypes.Generic.User.TypeDefault)
+            if (Include == null) { Include = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.UserSet>(); }
+            if (proto.Include.Count > 0)
             {
-                Include.SetValue(proto.Include);
+                Include.Clear();
+                foreach (var value in proto.Include)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.User>();
+                    tmp.SetValue(value);
+                    Include.Add(tmp);
+                }
+                Include.Raise();
             }
+        
 
-            if (Exclude == null) { Exclude = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.User>(); }
-            if (proto.Exclude != Avikom.UnityTypes.Generic.User.TypeDefault)
+            if (Exclude == null) { Exclude = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.UserSet>(); }
+            if (proto.Exclude.Count > 0)
             {
-                Exclude.SetValue(proto.Exclude);
+                Exclude.Clear();
+                foreach (var value in proto.Exclude)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.User>();
+                    tmp.SetValue(value);
+                    Exclude.Add(tmp);
+                }
+                Exclude.Raise();
             }
+        
 
-            if (Parameters == null) { Parameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>(); }
-            if (proto.Parameters != Avikom.UnityTypes.Generic.KeyValuePair.TypeDefault)
+            if (Parameters == null) { Parameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+            if (proto.Parameters.Count > 0)
             {
-                Parameters.SetValue(proto.Parameters);
+                Parameters.Clear();
+                foreach (var value in proto.Parameters)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>();
+                    tmp.SetValue(value);
+                    Parameters.Add(tmp);
+                }
+                Parameters.Raise();
             }
+        
 
             if (Status == null) { Status = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.IssueStatus>(); }
             if (proto.Status != Avikom.UnityTypes.Assistance.IssueStatus.TypeDefault)
@@ -156,31 +180,37 @@ namespace Avikom.UnityTypes.Assistance
                 Task.SetValue(other.Task);
             }
 
-            if (Include == null)
+            if (other.Include != null)
             {
-                Include = other.Include;
-            }
-            else if (other.Include != null)
-            {
-                Include.SetValue(other.Include);
-            }
-
-            if (Exclude == null)
-            {
-                Exclude = other.Exclude;
-            }
-            else if (other.Exclude != null)
-            {
-                Exclude.SetValue(other.Exclude);
+                if (Include == null) { Include = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.UserSet>(); }
+                Include.Clear();
+                foreach (var elem in other.Include.Items)
+                {
+                    Include.Add(elem);
+                }
+                Include.Raise();
             }
 
-            if (Parameters == null)
+            if (other.Exclude != null)
             {
-                Parameters = other.Parameters;
+                if (Exclude == null) { Exclude = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.UserSet>(); }
+                Exclude.Clear();
+                foreach (var elem in other.Exclude.Items)
+                {
+                    Exclude.Add(elem);
+                }
+                Exclude.Raise();
             }
-            else if (other.Parameters != null)
+
+            if (other.Parameters != null)
             {
-                Parameters.SetValue(other.Parameters);
+                if (Parameters == null) { Parameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+                Parameters.Clear();
+                foreach (var elem in other.Parameters.Items)
+                {
+                    Parameters.Add(elem);
+                }
+                Parameters.Raise();
             }
 
             if (Status == null)
@@ -202,9 +232,15 @@ namespace Avikom.UnityTypes.Assistance
             proto.Description = Description?.GetValue() ?? proto.Description;
             proto.Scene = Scene?.GetValue() ?? proto.Scene;
             proto.Task = Task?.GetValue() ?? proto.Task;
-            proto.Include = Include?.GetValue() ?? proto.Include;
-            proto.Exclude = Exclude?.GetValue() ?? proto.Exclude;
-            proto.Parameters = Parameters?.GetValue() ?? proto.Parameters;
+
+            foreach (var value in Include.Items) { proto.Include.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Exclude.Items) { proto.Exclude.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Parameters.Items) { proto.Parameters.Add(value.GetValue()); }
+                        
             proto.Status = Status?.GetValue() ?? proto.Status;
             return proto;
         }

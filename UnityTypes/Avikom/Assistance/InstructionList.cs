@@ -16,10 +16,10 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.InstructionList TypeDefault = null;
         // textual instructions for this task step
-        public Avikom.UnityTypes.Assistance.InstructionText Instructions;
+        public Avikom.UnityTypes.Assistance.InstructionTextSet Instructions;
 
         // media content for this task step; includes prefabs and world objects
-        public Avikom.UnityTypes.Assistance.InstructionMedia Media;
+        public Avikom.UnityTypes.Assistance.InstructionMediaSet Media;
 
 
         public void Raise()
@@ -30,17 +30,33 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.InstructionList proto)
         {
 
-            if (Instructions == null) { Instructions = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionText>(); }
-            if (proto.Instructions != Avikom.UnityTypes.Assistance.InstructionText.TypeDefault)
+            if (Instructions == null) { Instructions = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionTextSet>(); }
+            if (proto.Instructions.Count > 0)
             {
-                Instructions.SetValue(proto.Instructions);
+                Instructions.Clear();
+                foreach (var value in proto.Instructions)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionText>();
+                    tmp.SetValue(value);
+                    Instructions.Add(tmp);
+                }
+                Instructions.Raise();
             }
+        
 
-            if (Media == null) { Media = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionMedia>(); }
-            if (proto.Media != Avikom.UnityTypes.Assistance.InstructionMedia.TypeDefault)
+            if (Media == null) { Media = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionMediaSet>(); }
+            if (proto.Media.Count > 0)
             {
-                Media.SetValue(proto.Media);
+                Media.Clear();
+                foreach (var value in proto.Media)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionMedia>();
+                    tmp.SetValue(value);
+                    Media.Add(tmp);
+                }
+                Media.Raise();
             }
+        
             Raise();
         }
 
@@ -48,22 +64,26 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Instructions == null)
+            if (other.Instructions != null)
             {
-                Instructions = other.Instructions;
-            }
-            else if (other.Instructions != null)
-            {
-                Instructions.SetValue(other.Instructions);
+                if (Instructions == null) { Instructions = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionTextSet>(); }
+                Instructions.Clear();
+                foreach (var elem in other.Instructions.Items)
+                {
+                    Instructions.Add(elem);
+                }
+                Instructions.Raise();
             }
 
-            if (Media == null)
+            if (other.Media != null)
             {
-                Media = other.Media;
-            }
-            else if (other.Media != null)
-            {
-                Media.SetValue(other.Media);
+                if (Media == null) { Media = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.InstructionMediaSet>(); }
+                Media.Clear();
+                foreach (var elem in other.Media.Items)
+                {
+                    Media.Add(elem);
+                }
+                Media.Raise();
             }
             Raise();
         }
@@ -71,8 +91,12 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.InstructionList GetValue()
         {
             var proto = new Avikom.Types.Assistance.InstructionList();
-            proto.Instructions = Instructions?.GetValue() ?? proto.Instructions;
-            proto.Media = Media?.GetValue() ?? proto.Media;
+
+            foreach (var value in Instructions.Items) { proto.Instructions.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Media.Items) { proto.Media.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

@@ -18,7 +18,7 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.ChoicesConfig TypeDefault = null;
         // a list of choices to choose from
-        public Avikom.UnityTypes.Assistance.ChoiceItem Items;
+        public Avikom.UnityTypes.Assistance.ChoiceItemSet Items;
 
         // If set, this value may be returned when no choice has been made. If not, a valid item value must be returned.
         public StringVariable DefaultValue;
@@ -32,11 +32,19 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.ChoicesConfig proto)
         {
 
-            if (Items == null) { Items = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ChoiceItem>(); }
-            if (proto.Items != Avikom.UnityTypes.Assistance.ChoiceItem.TypeDefault)
+            if (Items == null) { Items = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ChoiceItemSet>(); }
+            if (proto.Items.Count > 0)
             {
-                Items.SetValue(proto.Items);
+                Items.Clear();
+                foreach (var value in proto.Items)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ChoiceItem>();
+                    tmp.SetValue(value);
+                    Items.Add(tmp);
+                }
+                Items.Raise();
             }
+        
 
             if (DefaultValue == null) { DefaultValue = ScriptableObject.CreateInstance<StringVariable>(); }
             if (proto.DefaultValue != StringVariable.TypeDefault)
@@ -50,13 +58,15 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Items == null)
+            if (other.Items != null)
             {
-                Items = other.Items;
-            }
-            else if (other.Items != null)
-            {
-                Items.SetValue(other.Items);
+                if (Items == null) { Items = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ChoiceItemSet>(); }
+                Items.Clear();
+                foreach (var elem in other.Items.Items)
+                {
+                    Items.Add(elem);
+                }
+                Items.Raise();
             }
 
             if (DefaultValue == null)
@@ -73,7 +83,9 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.ChoicesConfig GetValue()
         {
             var proto = new Avikom.Types.Assistance.ChoicesConfig();
-            proto.Items = Items?.GetValue() ?? proto.Items;
+
+            foreach (var value in Items.Items) { proto.Items.Add(value.GetValue()); }
+                        
             proto.DefaultValue = DefaultValue?.GetValue() ?? proto.DefaultValue;
             return proto;
         }

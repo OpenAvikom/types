@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Glasses
     {
         public static Avikom.Types.Glasses.SpacePinNames TypeDefault = null;
         // list of names
-        public StringVariable Names;
+        public StringVariableSet Names;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Glasses
         public void SetValue(Avikom.Types.Glasses.SpacePinNames proto)
         {
 
-            if (Names == null) { Names = ScriptableObject.CreateInstance<StringVariable>(); }
-            if (proto.Names != StringVariable.TypeDefault)
+            if (Names == null) { Names = ScriptableObject.CreateInstance<StringVariableSet>(); }
+            if (proto.Names.Count > 0)
             {
-                Names.SetValue(proto.Names);
+                Names.Clear();
+                foreach (var value in proto.Names)
+                {
+                    var tmp = ScriptableObject.CreateInstance<StringVariable>();
+                    tmp.SetValue(value);
+                    Names.Add(tmp);
+                }
+                Names.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Glasses
         {
             if (!other) { return; }
 
-            if (Names == null)
+            if (other.Names != null)
             {
-                Names = other.Names;
-            }
-            else if (other.Names != null)
-            {
-                Names.SetValue(other.Names);
+                if (Names == null) { Names = ScriptableObject.CreateInstance<StringVariableSet>(); }
+                Names.Clear();
+                foreach (var elem in other.Names.Items)
+                {
+                    Names.Add(elem);
+                }
+                Names.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Glasses
         public Avikom.Types.Glasses.SpacePinNames GetValue()
         {
             var proto = new Avikom.Types.Glasses.SpacePinNames();
-            proto.Names = Names?.GetValue() ?? proto.Names;
+
+            foreach (var value in Names.Items) { proto.Names.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

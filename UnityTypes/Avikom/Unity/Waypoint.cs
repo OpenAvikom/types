@@ -23,7 +23,7 @@ namespace Avikom.UnityTypes.Unity
         public Avikom.UnityTypes.Math.Vector3D Location;
 
         // neightbouring waypoints; if not set they might be derived from other waypoint neighbourhood relationships
-        public StringVariable Neighbors;
+        public StringVariableSet Neighbors;
 
         // a 'bubble' (in meters) around a waypoint that determines when a waypoint is considered reached
         public FloatVariable Threshold;
@@ -49,11 +49,19 @@ namespace Avikom.UnityTypes.Unity
                 Location.SetValue(proto.Location);
             }
 
-            if (Neighbors == null) { Neighbors = ScriptableObject.CreateInstance<StringVariable>(); }
-            if (proto.Neighbors != StringVariable.TypeDefault)
+            if (Neighbors == null) { Neighbors = ScriptableObject.CreateInstance<StringVariableSet>(); }
+            if (proto.Neighbors.Count > 0)
             {
-                Neighbors.SetValue(proto.Neighbors);
+                Neighbors.Clear();
+                foreach (var value in proto.Neighbors)
+                {
+                    var tmp = ScriptableObject.CreateInstance<StringVariable>();
+                    tmp.SetValue(value);
+                    Neighbors.Add(tmp);
+                }
+                Neighbors.Raise();
             }
+        
 
             if (Threshold == null) { Threshold = ScriptableObject.CreateInstance<FloatVariable>(); }
             if (proto.Threshold != FloatVariable.TypeDefault)
@@ -85,13 +93,15 @@ namespace Avikom.UnityTypes.Unity
                 Location.SetValue(other.Location);
             }
 
-            if (Neighbors == null)
+            if (other.Neighbors != null)
             {
-                Neighbors = other.Neighbors;
-            }
-            else if (other.Neighbors != null)
-            {
-                Neighbors.SetValue(other.Neighbors);
+                if (Neighbors == null) { Neighbors = ScriptableObject.CreateInstance<StringVariableSet>(); }
+                Neighbors.Clear();
+                foreach (var elem in other.Neighbors.Items)
+                {
+                    Neighbors.Add(elem);
+                }
+                Neighbors.Raise();
             }
 
             if (Threshold == null)
@@ -110,7 +120,9 @@ namespace Avikom.UnityTypes.Unity
             var proto = new Avikom.Types.Unity.Waypoint();
             proto.Name = Name?.GetValue() ?? proto.Name;
             proto.Location = Location?.GetValue() ?? proto.Location;
-            proto.Neighbors = Neighbors?.GetValue() ?? proto.Neighbors;
+
+            foreach (var value in Neighbors.Items) { proto.Neighbors.Add(value.GetValue()); }
+                        
             proto.Threshold = Threshold?.GetValue() ?? proto.Threshold;
             return proto;
         }

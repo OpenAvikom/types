@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Generic
     {
         public static Avikom.Types.Generic.PeerList TypeDefault = null;
         // A list of peers.
-        public Avikom.UnityTypes.Generic.Peer Peers;
+        public Avikom.UnityTypes.Generic.PeerSet Peers;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Generic
         public void SetValue(Avikom.Types.Generic.PeerList proto)
         {
 
-            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>(); }
-            if (proto.Peers != Avikom.UnityTypes.Generic.Peer.TypeDefault)
+            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+            if (proto.Peers.Count > 0)
             {
-                Peers.SetValue(proto.Peers);
+                Peers.Clear();
+                foreach (var value in proto.Peers)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>();
+                    tmp.SetValue(value);
+                    Peers.Add(tmp);
+                }
+                Peers.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Generic
         {
             if (!other) { return; }
 
-            if (Peers == null)
+            if (other.Peers != null)
             {
-                Peers = other.Peers;
-            }
-            else if (other.Peers != null)
-            {
-                Peers.SetValue(other.Peers);
+                if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+                Peers.Clear();
+                foreach (var elem in other.Peers.Items)
+                {
+                    Peers.Add(elem);
+                }
+                Peers.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Generic
         public Avikom.Types.Generic.PeerList GetValue()
         {
             var proto = new Avikom.Types.Generic.PeerList();
-            proto.Peers = Peers?.GetValue() ?? proto.Peers;
+
+            foreach (var value in Peers.Items) { proto.Peers.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

@@ -22,7 +22,7 @@ namespace Avikom.UnityTypes.Assistance
         public StringVariable Name;
 
         // all the tasks that can be conducted without further information
-        public Avikom.UnityTypes.Assistance.Task Tasks;
+        public Avikom.UnityTypes.Assistance.TaskSet Tasks;
 
 
         public void Raise()
@@ -39,11 +39,19 @@ namespace Avikom.UnityTypes.Assistance
                 Name.SetValue(proto.Name);
             }
 
-            if (Tasks == null) { Tasks = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Task>(); }
-            if (proto.Tasks != Avikom.UnityTypes.Assistance.Task.TypeDefault)
+            if (Tasks == null) { Tasks = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskSet>(); }
+            if (proto.Tasks.Count > 0)
             {
-                Tasks.SetValue(proto.Tasks);
+                Tasks.Clear();
+                foreach (var value in proto.Tasks)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Task>();
+                    tmp.SetValue(value);
+                    Tasks.Add(tmp);
+                }
+                Tasks.Raise();
             }
+        
             Raise();
         }
 
@@ -60,13 +68,15 @@ namespace Avikom.UnityTypes.Assistance
                 Name.SetValue(other.Name);
             }
 
-            if (Tasks == null)
+            if (other.Tasks != null)
             {
-                Tasks = other.Tasks;
-            }
-            else if (other.Tasks != null)
-            {
-                Tasks.SetValue(other.Tasks);
+                if (Tasks == null) { Tasks = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskSet>(); }
+                Tasks.Clear();
+                foreach (var elem in other.Tasks.Items)
+                {
+                    Tasks.Add(elem);
+                }
+                Tasks.Raise();
             }
             Raise();
         }
@@ -75,7 +85,9 @@ namespace Avikom.UnityTypes.Assistance
         {
             var proto = new Avikom.Types.Assistance.Scene();
             proto.Name = Name?.GetValue() ?? proto.Name;
-            proto.Tasks = Tasks?.GetValue() ?? proto.Tasks;
+
+            foreach (var value in Tasks.Items) { proto.Tasks.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

@@ -37,10 +37,10 @@ namespace Avikom.UnityTypes.Generic
         public StringVariable Gateway;
 
         // a list of services the peer provides for task step resolution
-        public StringVariable Services;
+        public StringVariableSet Services;
 
         // a list of endpoints that are provied by the peer
-        public Avikom.UnityTypes.Generic.RpcEndpoint Endpoints;
+        public Avikom.UnityTypes.Generic.RpcEndpointSet Endpoints;
 
 
         public void Raise()
@@ -93,17 +93,33 @@ namespace Avikom.UnityTypes.Generic
                 Gateway.SetValue(proto.Gateway);
             }
 
-            if (Services == null) { Services = ScriptableObject.CreateInstance<StringVariable>(); }
-            if (proto.Services != StringVariable.TypeDefault)
+            if (Services == null) { Services = ScriptableObject.CreateInstance<StringVariableSet>(); }
+            if (proto.Services.Count > 0)
             {
-                Services.SetValue(proto.Services);
+                Services.Clear();
+                foreach (var value in proto.Services)
+                {
+                    var tmp = ScriptableObject.CreateInstance<StringVariable>();
+                    tmp.SetValue(value);
+                    Services.Add(tmp);
+                }
+                Services.Raise();
             }
+        
 
-            if (Endpoints == null) { Endpoints = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.RpcEndpoint>(); }
-            if (proto.Endpoints != Avikom.UnityTypes.Generic.RpcEndpoint.TypeDefault)
+            if (Endpoints == null) { Endpoints = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.RpcEndpointSet>(); }
+            if (proto.Endpoints.Count > 0)
             {
-                Endpoints.SetValue(proto.Endpoints);
+                Endpoints.Clear();
+                foreach (var value in proto.Endpoints)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.RpcEndpoint>();
+                    tmp.SetValue(value);
+                    Endpoints.Add(tmp);
+                }
+                Endpoints.Raise();
             }
+        
             Raise();
         }
 
@@ -174,22 +190,26 @@ namespace Avikom.UnityTypes.Generic
                 Gateway.SetValue(other.Gateway);
             }
 
-            if (Services == null)
+            if (other.Services != null)
             {
-                Services = other.Services;
-            }
-            else if (other.Services != null)
-            {
-                Services.SetValue(other.Services);
+                if (Services == null) { Services = ScriptableObject.CreateInstance<StringVariableSet>(); }
+                Services.Clear();
+                foreach (var elem in other.Services.Items)
+                {
+                    Services.Add(elem);
+                }
+                Services.Raise();
             }
 
-            if (Endpoints == null)
+            if (other.Endpoints != null)
             {
-                Endpoints = other.Endpoints;
-            }
-            else if (other.Endpoints != null)
-            {
-                Endpoints.SetValue(other.Endpoints);
+                if (Endpoints == null) { Endpoints = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.RpcEndpointSet>(); }
+                Endpoints.Clear();
+                foreach (var elem in other.Endpoints.Items)
+                {
+                    Endpoints.Add(elem);
+                }
+                Endpoints.Raise();
             }
             Raise();
         }
@@ -204,8 +224,12 @@ namespace Avikom.UnityTypes.Generic
             proto.User = User?.GetValue() ?? proto.User;
             proto.ModalFitness = ModalFitness?.GetValue() ?? proto.ModalFitness;
             proto.Gateway = Gateway?.GetValue() ?? proto.Gateway;
-            proto.Services = Services?.GetValue() ?? proto.Services;
-            proto.Endpoints = Endpoints?.GetValue() ?? proto.Endpoints;
+
+            foreach (var value in Services.Items) { proto.Services.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Endpoints.Items) { proto.Endpoints.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

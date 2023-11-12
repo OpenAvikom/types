@@ -16,10 +16,10 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.RuntimeStepList TypeDefault = null;
         // currently active task steps to be done
-        public Avikom.UnityTypes.Assistance.RuntimeTaskStep Steps;
+        public Avikom.UnityTypes.Assistance.RuntimeTaskStepSet Steps;
 
         // a list of peers that can be used to solve task steps
-        public Avikom.UnityTypes.Generic.Peer Peers;
+        public Avikom.UnityTypes.Generic.PeerSet Peers;
 
 
         public void Raise()
@@ -30,17 +30,33 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.RuntimeStepList proto)
         {
 
-            if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStep>(); }
-            if (proto.Steps != Avikom.UnityTypes.Assistance.RuntimeTaskStep.TypeDefault)
+            if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStepSet>(); }
+            if (proto.Steps.Count > 0)
             {
-                Steps.SetValue(proto.Steps);
+                Steps.Clear();
+                foreach (var value in proto.Steps)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStep>();
+                    tmp.SetValue(value);
+                    Steps.Add(tmp);
+                }
+                Steps.Raise();
             }
+        
 
-            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>(); }
-            if (proto.Peers != Avikom.UnityTypes.Generic.Peer.TypeDefault)
+            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+            if (proto.Peers.Count > 0)
             {
-                Peers.SetValue(proto.Peers);
+                Peers.Clear();
+                foreach (var value in proto.Peers)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>();
+                    tmp.SetValue(value);
+                    Peers.Add(tmp);
+                }
+                Peers.Raise();
             }
+        
             Raise();
         }
 
@@ -48,22 +64,26 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Steps == null)
+            if (other.Steps != null)
             {
-                Steps = other.Steps;
-            }
-            else if (other.Steps != null)
-            {
-                Steps.SetValue(other.Steps);
+                if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStepSet>(); }
+                Steps.Clear();
+                foreach (var elem in other.Steps.Items)
+                {
+                    Steps.Add(elem);
+                }
+                Steps.Raise();
             }
 
-            if (Peers == null)
+            if (other.Peers != null)
             {
-                Peers = other.Peers;
-            }
-            else if (other.Peers != null)
-            {
-                Peers.SetValue(other.Peers);
+                if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+                Peers.Clear();
+                foreach (var elem in other.Peers.Items)
+                {
+                    Peers.Add(elem);
+                }
+                Peers.Raise();
             }
             Raise();
         }
@@ -71,8 +91,12 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.RuntimeStepList GetValue()
         {
             var proto = new Avikom.Types.Assistance.RuntimeStepList();
-            proto.Steps = Steps?.GetValue() ?? proto.Steps;
-            proto.Peers = Peers?.GetValue() ?? proto.Peers;
+
+            foreach (var value in Steps.Items) { proto.Steps.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Peers.Items) { proto.Peers.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

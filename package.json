@@ -1,6 +1,6 @@
 {
   "name": "com.github.openavikom.avikom-unity-types",
-  "version": "0.10.0-dev13",
+  "version": "0.10.0-dev14",
   "displayName": "AVIKOM Unity Types",
   "description": "Type definitions for AVIKOM peers developed with Unity.",
   "unity": "2019.4",

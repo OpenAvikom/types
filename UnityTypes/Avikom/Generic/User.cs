@@ -26,7 +26,7 @@ namespace Avikom.UnityTypes.Generic
         public UnsignedLongVariable Id;
 
         // system usernames required for certain peers, preferarbly unique to prevent imposters
-        public StringVariable Usernames;
+        public StringVariableSet Usernames;
 
 
         public void Raise()
@@ -55,11 +55,19 @@ namespace Avikom.UnityTypes.Generic
                 Id.SetValue(proto.Id);
             }
 
-            if (Usernames == null) { Usernames = ScriptableObject.CreateInstance<StringVariable>(); }
-            if (proto.Usernames != StringVariable.TypeDefault)
+            if (Usernames == null) { Usernames = ScriptableObject.CreateInstance<StringVariableSet>(); }
+            if (proto.Usernames.Count > 0)
             {
-                Usernames.SetValue(proto.Usernames);
+                Usernames.Clear();
+                foreach (var value in proto.Usernames)
+                {
+                    var tmp = ScriptableObject.CreateInstance<StringVariable>();
+                    tmp.SetValue(value);
+                    Usernames.Add(tmp);
+                }
+                Usernames.Raise();
             }
+        
             Raise();
         }
 
@@ -94,13 +102,15 @@ namespace Avikom.UnityTypes.Generic
                 Id.SetValue(other.Id);
             }
 
-            if (Usernames == null)
+            if (other.Usernames != null)
             {
-                Usernames = other.Usernames;
-            }
-            else if (other.Usernames != null)
-            {
-                Usernames.SetValue(other.Usernames);
+                if (Usernames == null) { Usernames = ScriptableObject.CreateInstance<StringVariableSet>(); }
+                Usernames.Clear();
+                foreach (var elem in other.Usernames.Items)
+                {
+                    Usernames.Add(elem);
+                }
+                Usernames.Raise();
             }
             Raise();
         }
@@ -111,7 +121,9 @@ namespace Avikom.UnityTypes.Generic
             proto.FirstName = FirstName?.GetValue() ?? proto.FirstName;
             proto.LastName = LastName?.GetValue() ?? proto.LastName;
             proto.Id = Id?.GetValue() ?? proto.Id;
-            proto.Usernames = Usernames?.GetValue() ?? proto.Usernames;
+
+            foreach (var value in Usernames.Items) { proto.Usernames.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

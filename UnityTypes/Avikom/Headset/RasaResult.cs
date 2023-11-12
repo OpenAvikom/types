@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Headset
     {
         public static Avikom.Types.Headset.RasaResult TypeDefault = null;
         // a list of intents that can be used to resolve task steps
-        public StringVariable Intents;
+        public StringVariableSet Intents;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Headset
         public void SetValue(Avikom.Types.Headset.RasaResult proto)
         {
 
-            if (Intents == null) { Intents = ScriptableObject.CreateInstance<StringVariable>(); }
-            if (proto.Intents != StringVariable.TypeDefault)
+            if (Intents == null) { Intents = ScriptableObject.CreateInstance<StringVariableSet>(); }
+            if (proto.Intents.Count > 0)
             {
-                Intents.SetValue(proto.Intents);
+                Intents.Clear();
+                foreach (var value in proto.Intents)
+                {
+                    var tmp = ScriptableObject.CreateInstance<StringVariable>();
+                    tmp.SetValue(value);
+                    Intents.Add(tmp);
+                }
+                Intents.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Headset
         {
             if (!other) { return; }
 
-            if (Intents == null)
+            if (other.Intents != null)
             {
-                Intents = other.Intents;
-            }
-            else if (other.Intents != null)
-            {
-                Intents.SetValue(other.Intents);
+                if (Intents == null) { Intents = ScriptableObject.CreateInstance<StringVariableSet>(); }
+                Intents.Clear();
+                foreach (var elem in other.Intents.Items)
+                {
+                    Intents.Add(elem);
+                }
+                Intents.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Headset
         public Avikom.Types.Headset.RasaResult GetValue()
         {
             var proto = new Avikom.Types.Headset.RasaResult();
-            proto.Intents = Intents?.GetValue() ?? proto.Intents;
+
+            foreach (var value in Intents.Items) { proto.Intents.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

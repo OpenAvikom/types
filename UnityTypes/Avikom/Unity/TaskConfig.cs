@@ -20,7 +20,7 @@ namespace Avikom.UnityTypes.Unity
         public StringVariable TaskName;
 
         // a list of assets that represent (virtual) task-specific assets
-        public Avikom.UnityTypes.Unity.GameObject Assets;
+        public Avikom.UnityTypes.Unity.GameObjectSet Assets;
 
 
         public void Raise()
@@ -37,11 +37,19 @@ namespace Avikom.UnityTypes.Unity
                 TaskName.SetValue(proto.TaskName);
             }
 
-            if (Assets == null) { Assets = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>(); }
-            if (proto.Assets != Avikom.UnityTypes.Unity.GameObject.TypeDefault)
+            if (Assets == null) { Assets = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+            if (proto.Assets.Count > 0)
             {
-                Assets.SetValue(proto.Assets);
+                Assets.Clear();
+                foreach (var value in proto.Assets)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>();
+                    tmp.SetValue(value);
+                    Assets.Add(tmp);
+                }
+                Assets.Raise();
             }
+        
             Raise();
         }
 
@@ -58,13 +66,15 @@ namespace Avikom.UnityTypes.Unity
                 TaskName.SetValue(other.TaskName);
             }
 
-            if (Assets == null)
+            if (other.Assets != null)
             {
-                Assets = other.Assets;
-            }
-            else if (other.Assets != null)
-            {
-                Assets.SetValue(other.Assets);
+                if (Assets == null) { Assets = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+                Assets.Clear();
+                foreach (var elem in other.Assets.Items)
+                {
+                    Assets.Add(elem);
+                }
+                Assets.Raise();
             }
             Raise();
         }
@@ -73,7 +83,9 @@ namespace Avikom.UnityTypes.Unity
         {
             var proto = new Avikom.Types.Unity.TaskConfig();
             proto.TaskName = TaskName?.GetValue() ?? proto.TaskName;
-            proto.Assets = Assets?.GetValue() ?? proto.Assets;
+
+            foreach (var value in Assets.Items) { proto.Assets.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

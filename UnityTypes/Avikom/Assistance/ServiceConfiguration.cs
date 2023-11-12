@@ -19,7 +19,7 @@ namespace Avikom.UnityTypes.Assistance
         public StringVariable Topic;
 
         // key-value pairs to configure the requested service
-        public Avikom.UnityTypes.Generic.KeyValuePair Parameters;
+        public Avikom.UnityTypes.Generic.KeyValuePairSet Parameters;
 
 
         public void Raise()
@@ -36,11 +36,19 @@ namespace Avikom.UnityTypes.Assistance
                 Topic.SetValue(proto.Topic);
             }
 
-            if (Parameters == null) { Parameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>(); }
-            if (proto.Parameters != Avikom.UnityTypes.Generic.KeyValuePair.TypeDefault)
+            if (Parameters == null) { Parameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+            if (proto.Parameters.Count > 0)
             {
-                Parameters.SetValue(proto.Parameters);
+                Parameters.Clear();
+                foreach (var value in proto.Parameters)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>();
+                    tmp.SetValue(value);
+                    Parameters.Add(tmp);
+                }
+                Parameters.Raise();
             }
+        
             Raise();
         }
 
@@ -57,13 +65,15 @@ namespace Avikom.UnityTypes.Assistance
                 Topic.SetValue(other.Topic);
             }
 
-            if (Parameters == null)
+            if (other.Parameters != null)
             {
-                Parameters = other.Parameters;
-            }
-            else if (other.Parameters != null)
-            {
-                Parameters.SetValue(other.Parameters);
+                if (Parameters == null) { Parameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+                Parameters.Clear();
+                foreach (var elem in other.Parameters.Items)
+                {
+                    Parameters.Add(elem);
+                }
+                Parameters.Raise();
             }
             Raise();
         }
@@ -72,7 +82,9 @@ namespace Avikom.UnityTypes.Assistance
         {
             var proto = new Avikom.Types.Assistance.ServiceConfiguration();
             proto.Topic = Topic?.GetValue() ?? proto.Topic;
-            proto.Parameters = Parameters?.GetValue() ?? proto.Parameters;
+
+            foreach (var value in Parameters.Items) { proto.Parameters.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

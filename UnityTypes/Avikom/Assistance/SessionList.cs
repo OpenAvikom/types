@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.SessionList TypeDefault = null;
         // session list
-        public Avikom.UnityTypes.Assistance.Session Sessions;
+        public Avikom.UnityTypes.Assistance.SessionSet Sessions;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.SessionList proto)
         {
 
-            if (Sessions == null) { Sessions = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Session>(); }
-            if (proto.Sessions != Avikom.UnityTypes.Assistance.Session.TypeDefault)
+            if (Sessions == null) { Sessions = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.SessionSet>(); }
+            if (proto.Sessions.Count > 0)
             {
-                Sessions.SetValue(proto.Sessions);
+                Sessions.Clear();
+                foreach (var value in proto.Sessions)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Session>();
+                    tmp.SetValue(value);
+                    Sessions.Add(tmp);
+                }
+                Sessions.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Sessions == null)
+            if (other.Sessions != null)
             {
-                Sessions = other.Sessions;
-            }
-            else if (other.Sessions != null)
-            {
-                Sessions.SetValue(other.Sessions);
+                if (Sessions == null) { Sessions = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.SessionSet>(); }
+                Sessions.Clear();
+                foreach (var elem in other.Sessions.Items)
+                {
+                    Sessions.Add(elem);
+                }
+                Sessions.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.SessionList GetValue()
         {
             var proto = new Avikom.Types.Assistance.SessionList();
-            proto.Sessions = Sessions?.GetValue() ?? proto.Sessions;
+
+            foreach (var value in Sessions.Items) { proto.Sessions.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

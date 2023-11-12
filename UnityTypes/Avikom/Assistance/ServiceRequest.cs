@@ -22,7 +22,7 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.UnityTypes.Assistance.ServiceConfiguration Configuration;
 
         // a list of available peers that can be used to resolve the service request
-        public Avikom.UnityTypes.Generic.Peer Peers;
+        public Avikom.UnityTypes.Generic.PeerSet Peers;
 
 
         public void Raise()
@@ -45,11 +45,19 @@ namespace Avikom.UnityTypes.Assistance
                 Configuration.SetValue(proto.Configuration);
             }
 
-            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>(); }
-            if (proto.Peers != Avikom.UnityTypes.Generic.Peer.TypeDefault)
+            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+            if (proto.Peers.Count > 0)
             {
-                Peers.SetValue(proto.Peers);
+                Peers.Clear();
+                foreach (var value in proto.Peers)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>();
+                    tmp.SetValue(value);
+                    Peers.Add(tmp);
+                }
+                Peers.Raise();
             }
+        
             Raise();
         }
 
@@ -75,13 +83,15 @@ namespace Avikom.UnityTypes.Assistance
                 Configuration.SetValue(other.Configuration);
             }
 
-            if (Peers == null)
+            if (other.Peers != null)
             {
-                Peers = other.Peers;
-            }
-            else if (other.Peers != null)
-            {
-                Peers.SetValue(other.Peers);
+                if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+                Peers.Clear();
+                foreach (var elem in other.Peers.Items)
+                {
+                    Peers.Add(elem);
+                }
+                Peers.Raise();
             }
             Raise();
         }
@@ -91,7 +101,9 @@ namespace Avikom.UnityTypes.Assistance
             var proto = new Avikom.Types.Assistance.ServiceRequest();
             proto.TaskId = TaskId?.GetValue() ?? proto.TaskId;
             proto.Configuration = Configuration?.GetValue() ?? proto.Configuration;
-            proto.Peers = Peers?.GetValue() ?? proto.Peers;
+
+            foreach (var value in Peers.Items) { proto.Peers.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

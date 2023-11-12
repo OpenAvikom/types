@@ -19,7 +19,7 @@ namespace Avikom.UnityTypes.Headset
         public StringVariable Intent;
 
         // additional information extracted from user input as key-value pairs
-        public Avikom.UnityTypes.Generic.KeyValuePair Slots;
+        public Avikom.UnityTypes.Generic.KeyValuePairSet Slots;
 
         // the user who provided the input
         public UnsignedLongVariable UserId;
@@ -39,11 +39,19 @@ namespace Avikom.UnityTypes.Headset
                 Intent.SetValue(proto.Intent);
             }
 
-            if (Slots == null) { Slots = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>(); }
-            if (proto.Slots != Avikom.UnityTypes.Generic.KeyValuePair.TypeDefault)
+            if (Slots == null) { Slots = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+            if (proto.Slots.Count > 0)
             {
-                Slots.SetValue(proto.Slots);
+                Slots.Clear();
+                foreach (var value in proto.Slots)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>();
+                    tmp.SetValue(value);
+                    Slots.Add(tmp);
+                }
+                Slots.Raise();
             }
+        
 
             if (UserId == null) { UserId = ScriptableObject.CreateInstance<UnsignedLongVariable>(); }
             if (proto.UserId != UnsignedLongVariable.TypeDefault)
@@ -66,13 +74,15 @@ namespace Avikom.UnityTypes.Headset
                 Intent.SetValue(other.Intent);
             }
 
-            if (Slots == null)
+            if (other.Slots != null)
             {
-                Slots = other.Slots;
-            }
-            else if (other.Slots != null)
-            {
-                Slots.SetValue(other.Slots);
+                if (Slots == null) { Slots = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+                Slots.Clear();
+                foreach (var elem in other.Slots.Items)
+                {
+                    Slots.Add(elem);
+                }
+                Slots.Raise();
             }
 
             if (UserId == null)
@@ -90,7 +100,9 @@ namespace Avikom.UnityTypes.Headset
         {
             var proto = new Avikom.Types.Headset.RasaMessage();
             proto.Intent = Intent?.GetValue() ?? proto.Intent;
-            proto.Slots = Slots?.GetValue() ?? proto.Slots;
+
+            foreach (var value in Slots.Items) { proto.Slots.Add(value.GetValue()); }
+                        
             proto.UserId = UserId?.GetValue() ?? proto.UserId;
             return proto;
         }

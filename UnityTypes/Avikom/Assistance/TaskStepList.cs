@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.TaskStepList TypeDefault = null;
         // a task step list
-        public Avikom.UnityTypes.Assistance.TaskStep Steps;
+        public Avikom.UnityTypes.Assistance.TaskStepSet Steps;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.TaskStepList proto)
         {
 
-            if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStep>(); }
-            if (proto.Steps != Avikom.UnityTypes.Assistance.TaskStep.TypeDefault)
+            if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStepSet>(); }
+            if (proto.Steps.Count > 0)
             {
-                Steps.SetValue(proto.Steps);
+                Steps.Clear();
+                foreach (var value in proto.Steps)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStep>();
+                    tmp.SetValue(value);
+                    Steps.Add(tmp);
+                }
+                Steps.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Steps == null)
+            if (other.Steps != null)
             {
-                Steps = other.Steps;
-            }
-            else if (other.Steps != null)
-            {
-                Steps.SetValue(other.Steps);
+                if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStepSet>(); }
+                Steps.Clear();
+                foreach (var elem in other.Steps.Items)
+                {
+                    Steps.Add(elem);
+                }
+                Steps.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.TaskStepList GetValue()
         {
             var proto = new Avikom.Types.Assistance.TaskStepList();
-            proto.Steps = Steps?.GetValue() ?? proto.Steps;
+
+            foreach (var value in Steps.Items) { proto.Steps.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

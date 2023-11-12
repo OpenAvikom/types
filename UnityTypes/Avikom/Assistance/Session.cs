@@ -25,10 +25,10 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.UnityTypes.Assistance.Scene Scene;
 
         // a list of peers available in the session; only the unique identifier (name) must be provided
-        public Avikom.UnityTypes.Generic.Peer Peers;
+        public Avikom.UnityTypes.Generic.PeerSet Peers;
 
         // list of currently eligible `RuntimeTaskSteps`
-        public Avikom.UnityTypes.Assistance.RuntimeTaskStep Current;
+        public Avikom.UnityTypes.Assistance.RuntimeTaskStepSet Current;
 
         // profile of the session's user
         public Avikom.UnityTypes.Generic.UserProfile Profile;
@@ -63,17 +63,33 @@ namespace Avikom.UnityTypes.Assistance
                 Scene.SetValue(proto.Scene);
             }
 
-            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>(); }
-            if (proto.Peers != Avikom.UnityTypes.Generic.Peer.TypeDefault)
+            if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+            if (proto.Peers.Count > 0)
             {
-                Peers.SetValue(proto.Peers);
+                Peers.Clear();
+                foreach (var value in proto.Peers)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.Peer>();
+                    tmp.SetValue(value);
+                    Peers.Add(tmp);
+                }
+                Peers.Raise();
             }
+        
 
-            if (Current == null) { Current = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStep>(); }
-            if (proto.Current != Avikom.UnityTypes.Assistance.RuntimeTaskStep.TypeDefault)
+            if (Current == null) { Current = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStepSet>(); }
+            if (proto.Current.Count > 0)
             {
-                Current.SetValue(proto.Current);
+                Current.Clear();
+                foreach (var value in proto.Current)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStep>();
+                    tmp.SetValue(value);
+                    Current.Add(tmp);
+                }
+                Current.Raise();
             }
+        
 
             if (Profile == null) { Profile = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.UserProfile>(); }
             if (proto.Profile != Avikom.UnityTypes.Generic.UserProfile.TypeDefault)
@@ -123,22 +139,26 @@ namespace Avikom.UnityTypes.Assistance
                 Scene.SetValue(other.Scene);
             }
 
-            if (Peers == null)
+            if (other.Peers != null)
             {
-                Peers = other.Peers;
-            }
-            else if (other.Peers != null)
-            {
-                Peers.SetValue(other.Peers);
+                if (Peers == null) { Peers = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.PeerSet>(); }
+                Peers.Clear();
+                foreach (var elem in other.Peers.Items)
+                {
+                    Peers.Add(elem);
+                }
+                Peers.Raise();
             }
 
-            if (Current == null)
+            if (other.Current != null)
             {
-                Current = other.Current;
-            }
-            else if (other.Current != null)
-            {
-                Current.SetValue(other.Current);
+                if (Current == null) { Current = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.RuntimeTaskStepSet>(); }
+                Current.Clear();
+                foreach (var elem in other.Current.Items)
+                {
+                    Current.Add(elem);
+                }
+                Current.Raise();
             }
 
             if (Profile == null)
@@ -184,8 +204,12 @@ namespace Avikom.UnityTypes.Assistance
             var proto = new Avikom.Types.Assistance.Session();
             proto.Id = Id?.GetValue() ?? proto.Id;
             proto.Scene = Scene?.GetValue() ?? proto.Scene;
-            proto.Peers = Peers?.GetValue() ?? proto.Peers;
-            proto.Current = Current?.GetValue() ?? proto.Current;
+
+            foreach (var value in Peers.Items) { proto.Peers.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Current.Items) { proto.Current.Add(value.GetValue()); }
+                        
             proto.Profile = Profile?.GetValue() ?? proto.Profile;
             proto.Task = Task?.GetValue() ?? proto.Task;
             proto.ModalAffinity = ModalAffinity?.GetValue() ?? proto.ModalAffinity;

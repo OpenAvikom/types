@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Math
     {
         public static Avikom.Types.Math.FloatMatrix TypeDefault = null;
         // list of `FloatArrays`
-        public Avikom.UnityTypes.Math.FloatArray Rows;
+        public Avikom.UnityTypes.Math.FloatArraySet Rows;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Math
         public void SetValue(Avikom.Types.Math.FloatMatrix proto)
         {
 
-            if (Rows == null) { Rows = ScriptableObject.CreateInstance<Avikom.UnityTypes.Math.FloatArray>(); }
-            if (proto.Rows != Avikom.UnityTypes.Math.FloatArray.TypeDefault)
+            if (Rows == null) { Rows = ScriptableObject.CreateInstance<Avikom.UnityTypes.Math.FloatArraySet>(); }
+            if (proto.Rows.Count > 0)
             {
-                Rows.SetValue(proto.Rows);
+                Rows.Clear();
+                foreach (var value in proto.Rows)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Math.FloatArray>();
+                    tmp.SetValue(value);
+                    Rows.Add(tmp);
+                }
+                Rows.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Math
         {
             if (!other) { return; }
 
-            if (Rows == null)
+            if (other.Rows != null)
             {
-                Rows = other.Rows;
-            }
-            else if (other.Rows != null)
-            {
-                Rows.SetValue(other.Rows);
+                if (Rows == null) { Rows = ScriptableObject.CreateInstance<Avikom.UnityTypes.Math.FloatArraySet>(); }
+                Rows.Clear();
+                foreach (var elem in other.Rows.Items)
+                {
+                    Rows.Add(elem);
+                }
+                Rows.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Math
         public Avikom.Types.Math.FloatMatrix GetValue()
         {
             var proto = new Avikom.Types.Math.FloatMatrix();
-            proto.Rows = Rows?.GetValue() ?? proto.Rows;
+
+            foreach (var value in Rows.Items) { proto.Rows.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Math
     {
         public static Avikom.Types.Math.FloatArray TypeDefault = null;
         // list of floating point numbers
-        public FloatVariable Items;
+        public FloatVariableSet Items;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Math
         public void SetValue(Avikom.Types.Math.FloatArray proto)
         {
 
-            if (Items == null) { Items = ScriptableObject.CreateInstance<FloatVariable>(); }
-            if (proto.Items != FloatVariable.TypeDefault)
+            if (Items == null) { Items = ScriptableObject.CreateInstance<FloatVariableSet>(); }
+            if (proto.Items.Count > 0)
             {
-                Items.SetValue(proto.Items);
+                Items.Clear();
+                foreach (var value in proto.Items)
+                {
+                    var tmp = ScriptableObject.CreateInstance<FloatVariable>();
+                    tmp.SetValue(value);
+                    Items.Add(tmp);
+                }
+                Items.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Math
         {
             if (!other) { return; }
 
-            if (Items == null)
+            if (other.Items != null)
             {
-                Items = other.Items;
-            }
-            else if (other.Items != null)
-            {
-                Items.SetValue(other.Items);
+                if (Items == null) { Items = ScriptableObject.CreateInstance<FloatVariableSet>(); }
+                Items.Clear();
+                foreach (var elem in other.Items.Items)
+                {
+                    Items.Add(elem);
+                }
+                Items.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Math
         public Avikom.Types.Math.FloatArray GetValue()
         {
             var proto = new Avikom.Types.Math.FloatArray();
-            proto.Items = Items?.GetValue() ?? proto.Items;
+
+            foreach (var value in Items.Items) { proto.Items.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

@@ -20,13 +20,13 @@ namespace Avikom.UnityTypes.Unity
         public StringVariable SceneName;
 
         // marked locations that synchronize the real and virtual environment; most likely QR codes
-        public Avikom.UnityTypes.Unity.GameObject Anchors;
+        public Avikom.UnityTypes.Unity.GameObjectSet Anchors;
 
         // objects that are positioned in the scene; may act as anchors for task-specific configurations
-        public Avikom.UnityTypes.Unity.GameObject Assets;
+        public Avikom.UnityTypes.Unity.GameObjectSet Assets;
 
         // coordinates that represents paths from one asset to antother. used to mark 'save' guidance routes
-        public Avikom.UnityTypes.Unity.Waypoint Waypoints;
+        public Avikom.UnityTypes.Unity.WaypointSet Waypoints;
 
 
         public void Raise()
@@ -43,23 +43,47 @@ namespace Avikom.UnityTypes.Unity
                 SceneName.SetValue(proto.SceneName);
             }
 
-            if (Anchors == null) { Anchors = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>(); }
-            if (proto.Anchors != Avikom.UnityTypes.Unity.GameObject.TypeDefault)
+            if (Anchors == null) { Anchors = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+            if (proto.Anchors.Count > 0)
             {
-                Anchors.SetValue(proto.Anchors);
+                Anchors.Clear();
+                foreach (var value in proto.Anchors)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>();
+                    tmp.SetValue(value);
+                    Anchors.Add(tmp);
+                }
+                Anchors.Raise();
             }
+        
 
-            if (Assets == null) { Assets = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>(); }
-            if (proto.Assets != Avikom.UnityTypes.Unity.GameObject.TypeDefault)
+            if (Assets == null) { Assets = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+            if (proto.Assets.Count > 0)
             {
-                Assets.SetValue(proto.Assets);
+                Assets.Clear();
+                foreach (var value in proto.Assets)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>();
+                    tmp.SetValue(value);
+                    Assets.Add(tmp);
+                }
+                Assets.Raise();
             }
+        
 
-            if (Waypoints == null) { Waypoints = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.Waypoint>(); }
-            if (proto.Waypoints != Avikom.UnityTypes.Unity.Waypoint.TypeDefault)
+            if (Waypoints == null) { Waypoints = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.WaypointSet>(); }
+            if (proto.Waypoints.Count > 0)
             {
-                Waypoints.SetValue(proto.Waypoints);
+                Waypoints.Clear();
+                foreach (var value in proto.Waypoints)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.Waypoint>();
+                    tmp.SetValue(value);
+                    Waypoints.Add(tmp);
+                }
+                Waypoints.Raise();
             }
+        
             Raise();
         }
 
@@ -76,31 +100,37 @@ namespace Avikom.UnityTypes.Unity
                 SceneName.SetValue(other.SceneName);
             }
 
-            if (Anchors == null)
+            if (other.Anchors != null)
             {
-                Anchors = other.Anchors;
-            }
-            else if (other.Anchors != null)
-            {
-                Anchors.SetValue(other.Anchors);
-            }
-
-            if (Assets == null)
-            {
-                Assets = other.Assets;
-            }
-            else if (other.Assets != null)
-            {
-                Assets.SetValue(other.Assets);
+                if (Anchors == null) { Anchors = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+                Anchors.Clear();
+                foreach (var elem in other.Anchors.Items)
+                {
+                    Anchors.Add(elem);
+                }
+                Anchors.Raise();
             }
 
-            if (Waypoints == null)
+            if (other.Assets != null)
             {
-                Waypoints = other.Waypoints;
+                if (Assets == null) { Assets = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+                Assets.Clear();
+                foreach (var elem in other.Assets.Items)
+                {
+                    Assets.Add(elem);
+                }
+                Assets.Raise();
             }
-            else if (other.Waypoints != null)
+
+            if (other.Waypoints != null)
             {
-                Waypoints.SetValue(other.Waypoints);
+                if (Waypoints == null) { Waypoints = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.WaypointSet>(); }
+                Waypoints.Clear();
+                foreach (var elem in other.Waypoints.Items)
+                {
+                    Waypoints.Add(elem);
+                }
+                Waypoints.Raise();
             }
             Raise();
         }
@@ -109,9 +139,15 @@ namespace Avikom.UnityTypes.Unity
         {
             var proto = new Avikom.Types.Unity.SceneConfig();
             proto.SceneName = SceneName?.GetValue() ?? proto.SceneName;
-            proto.Anchors = Anchors?.GetValue() ?? proto.Anchors;
-            proto.Assets = Assets?.GetValue() ?? proto.Assets;
-            proto.Waypoints = Waypoints?.GetValue() ?? proto.Waypoints;
+
+            foreach (var value in Anchors.Items) { proto.Anchors.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Assets.Items) { proto.Assets.Add(value.GetValue()); }
+                        
+
+            foreach (var value in Waypoints.Items) { proto.Waypoints.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

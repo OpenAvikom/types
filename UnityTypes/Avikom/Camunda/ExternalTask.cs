@@ -59,7 +59,7 @@ namespace Avikom.UnityTypes.Camunda
         public StringVariable TopicName;
 
         // a set of local and global variables passed to the external service
-        public Avikom.UnityTypes.Camunda.Variable Variables;
+        public Avikom.UnityTypes.Camunda.VariableSet Variables;
 
 
         public void Raise()
@@ -154,11 +154,19 @@ namespace Avikom.UnityTypes.Camunda
                 TopicName.SetValue(proto.TopicName);
             }
 
-            if (Variables == null) { Variables = ScriptableObject.CreateInstance<Avikom.UnityTypes.Camunda.Variable>(); }
-            if (proto.Variables != Avikom.UnityTypes.Camunda.Variable.TypeDefault)
+            if (Variables == null) { Variables = ScriptableObject.CreateInstance<Avikom.UnityTypes.Camunda.VariableSet>(); }
+            if (proto.Variables.Count > 0)
             {
-                Variables.SetValue(proto.Variables);
+                Variables.Clear();
+                foreach (var value in proto.Variables)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Camunda.Variable>();
+                    tmp.SetValue(value);
+                    Variables.Add(tmp);
+                }
+                Variables.Raise();
             }
+        
             Raise();
         }
 
@@ -292,13 +300,15 @@ namespace Avikom.UnityTypes.Camunda
                 TopicName.SetValue(other.TopicName);
             }
 
-            if (Variables == null)
+            if (other.Variables != null)
             {
-                Variables = other.Variables;
-            }
-            else if (other.Variables != null)
-            {
-                Variables.SetValue(other.Variables);
+                if (Variables == null) { Variables = ScriptableObject.CreateInstance<Avikom.UnityTypes.Camunda.VariableSet>(); }
+                Variables.Clear();
+                foreach (var elem in other.Variables.Items)
+                {
+                    Variables.Add(elem);
+                }
+                Variables.Raise();
             }
             Raise();
         }
@@ -320,7 +330,9 @@ namespace Avikom.UnityTypes.Camunda
             proto.WorkerId = WorkerId?.GetValue() ?? proto.WorkerId;
             proto.Priority = Priority?.GetValue() ?? proto.Priority;
             proto.TopicName = TopicName?.GetValue() ?? proto.TopicName;
-            proto.Variables = Variables?.GetValue() ?? proto.Variables;
+
+            foreach (var value in Variables.Items) { proto.Variables.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

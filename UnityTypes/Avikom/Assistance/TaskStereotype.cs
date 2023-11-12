@@ -27,7 +27,7 @@ namespace Avikom.UnityTypes.Assistance
         public StringVariable Target;
 
         // a set of services that can be used to solve that task
-        public Avikom.UnityTypes.Assistance.ServiceConfiguration Services;
+        public Avikom.UnityTypes.Assistance.ServiceConfigurationSet Services;
 
         // the default assistance for this step if no step proficiency is available
         public Avikom.UnityTypes.Assistance.AssistanceLevel DefaultAssistance;
@@ -65,11 +65,19 @@ namespace Avikom.UnityTypes.Assistance
                 Target.SetValue(proto.Target);
             }
 
-            if (Services == null) { Services = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ServiceConfiguration>(); }
-            if (proto.Services != Avikom.UnityTypes.Assistance.ServiceConfiguration.TypeDefault)
+            if (Services == null) { Services = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ServiceConfigurationSet>(); }
+            if (proto.Services.Count > 0)
             {
-                Services.SetValue(proto.Services);
+                Services.Clear();
+                foreach (var value in proto.Services)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ServiceConfiguration>();
+                    tmp.SetValue(value);
+                    Services.Add(tmp);
+                }
+                Services.Raise();
             }
+        
 
             if (DefaultAssistance == null) { DefaultAssistance = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.AssistanceLevel>(); }
             if (proto.DefaultAssistance != Avikom.UnityTypes.Assistance.AssistanceLevel.TypeDefault)
@@ -122,13 +130,15 @@ namespace Avikom.UnityTypes.Assistance
                 Target.SetValue(other.Target);
             }
 
-            if (Services == null)
+            if (other.Services != null)
             {
-                Services = other.Services;
-            }
-            else if (other.Services != null)
-            {
-                Services.SetValue(other.Services);
+                if (Services == null) { Services = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.ServiceConfigurationSet>(); }
+                Services.Clear();
+                foreach (var elem in other.Services.Items)
+                {
+                    Services.Add(elem);
+                }
+                Services.Raise();
             }
 
             if (DefaultAssistance == null)
@@ -166,7 +176,9 @@ namespace Avikom.UnityTypes.Assistance
             proto.Category = Category?.GetValue() ?? proto.Category;
             proto.Choices = Choices?.GetValue() ?? proto.Choices;
             proto.Target = Target?.GetValue() ?? proto.Target;
-            proto.Services = Services?.GetValue() ?? proto.Services;
+
+            foreach (var value in Services.Items) { proto.Services.Add(value.GetValue()); }
+                        
             proto.DefaultAssistance = DefaultAssistance?.GetValue() ?? proto.DefaultAssistance;
             proto.MinimalAssistance = MinimalAssistance?.GetValue() ?? proto.MinimalAssistance;
             proto.AssistanceDecrease = AssistanceDecrease?.GetValue() ?? proto.AssistanceDecrease;

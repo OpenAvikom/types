@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.IssueList TypeDefault = null;
 
-        public Avikom.UnityTypes.Assistance.Issue Issues;
+        public Avikom.UnityTypes.Assistance.IssueSet Issues;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.IssueList proto)
         {
 
-            if (Issues == null) { Issues = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Issue>(); }
-            if (proto.Issues != Avikom.UnityTypes.Assistance.Issue.TypeDefault)
+            if (Issues == null) { Issues = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.IssueSet>(); }
+            if (proto.Issues.Count > 0)
             {
-                Issues.SetValue(proto.Issues);
+                Issues.Clear();
+                foreach (var value in proto.Issues)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Issue>();
+                    tmp.SetValue(value);
+                    Issues.Add(tmp);
+                }
+                Issues.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Issues == null)
+            if (other.Issues != null)
             {
-                Issues = other.Issues;
-            }
-            else if (other.Issues != null)
-            {
-                Issues.SetValue(other.Issues);
+                if (Issues == null) { Issues = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.IssueSet>(); }
+                Issues.Clear();
+                foreach (var elem in other.Issues.Items)
+                {
+                    Issues.Add(elem);
+                }
+                Issues.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.IssueList GetValue()
         {
             var proto = new Avikom.Types.Assistance.IssueList();
-            proto.Issues = Issues?.GetValue() ?? proto.Issues;
+
+            foreach (var value in Issues.Items) { proto.Issues.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

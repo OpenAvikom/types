@@ -30,7 +30,7 @@ namespace Avikom.UnityTypes.Unity
         public StringVariable Parent;
 
         // a list of nested `GameObjects`; parent will be this object if not stated differently
-        public Avikom.UnityTypes.Unity.GameObject Children;
+        public Avikom.UnityTypes.Unity.GameObjectSet Children;
 
 
         public void Raise()
@@ -65,11 +65,19 @@ namespace Avikom.UnityTypes.Unity
                 Parent.SetValue(proto.Parent);
             }
 
-            if (Children == null) { Children = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>(); }
-            if (proto.Children != Avikom.UnityTypes.Unity.GameObject.TypeDefault)
+            if (Children == null) { Children = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+            if (proto.Children.Count > 0)
             {
-                Children.SetValue(proto.Children);
+                Children.Clear();
+                foreach (var value in proto.Children)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObject>();
+                    tmp.SetValue(value);
+                    Children.Add(tmp);
+                }
+                Children.Raise();
             }
+        
             Raise();
         }
 
@@ -113,13 +121,15 @@ namespace Avikom.UnityTypes.Unity
                 Parent.SetValue(other.Parent);
             }
 
-            if (Children == null)
+            if (other.Children != null)
             {
-                Children = other.Children;
-            }
-            else if (other.Children != null)
-            {
-                Children.SetValue(other.Children);
+                if (Children == null) { Children = ScriptableObject.CreateInstance<Avikom.UnityTypes.Unity.GameObjectSet>(); }
+                Children.Clear();
+                foreach (var elem in other.Children.Items)
+                {
+                    Children.Add(elem);
+                }
+                Children.Raise();
             }
             Raise();
         }
@@ -131,7 +141,9 @@ namespace Avikom.UnityTypes.Unity
             proto.Transpose = Transpose?.GetValue() ?? proto.Transpose;
             proto.Prefab = Prefab?.GetValue() ?? proto.Prefab;
             proto.Parent = Parent?.GetValue() ?? proto.Parent;
-            proto.Children = Children?.GetValue() ?? proto.Children;
+
+            foreach (var value in Children.Items) { proto.Children.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

@@ -20,7 +20,7 @@ namespace Avikom.UnityTypes.Assistance
         public StringVariable Name;
 
         // steps assigned to this task; steps do not need to be exclusive to a task; steps do not need to be mentioned here to be triggered by tge BPM engine
-        public Avikom.UnityTypes.Assistance.TaskStep Steps;
+        public Avikom.UnityTypes.Assistance.TaskStepSet Steps;
 
         // a brief description of the current task (roughly 1-3 sentences max).
         public StringVariable Summary;
@@ -32,7 +32,7 @@ namespace Avikom.UnityTypes.Assistance
         public StringVariable Process;
 
         // variables passed to the process
-        public Avikom.UnityTypes.Generic.KeyValuePair ProcessParameters;
+        public Avikom.UnityTypes.Generic.KeyValuePairSet ProcessParameters;
 
 
         public void Raise()
@@ -49,11 +49,19 @@ namespace Avikom.UnityTypes.Assistance
                 Name.SetValue(proto.Name);
             }
 
-            if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStep>(); }
-            if (proto.Steps != Avikom.UnityTypes.Assistance.TaskStep.TypeDefault)
+            if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStepSet>(); }
+            if (proto.Steps.Count > 0)
             {
-                Steps.SetValue(proto.Steps);
+                Steps.Clear();
+                foreach (var value in proto.Steps)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStep>();
+                    tmp.SetValue(value);
+                    Steps.Add(tmp);
+                }
+                Steps.Raise();
             }
+        
 
             if (Summary == null) { Summary = ScriptableObject.CreateInstance<StringVariable>(); }
             if (proto.Summary != StringVariable.TypeDefault)
@@ -73,11 +81,19 @@ namespace Avikom.UnityTypes.Assistance
                 Process.SetValue(proto.Process);
             }
 
-            if (ProcessParameters == null) { ProcessParameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>(); }
-            if (proto.ProcessParameters != Avikom.UnityTypes.Generic.KeyValuePair.TypeDefault)
+            if (ProcessParameters == null) { ProcessParameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+            if (proto.ProcessParameters.Count > 0)
             {
-                ProcessParameters.SetValue(proto.ProcessParameters);
+                ProcessParameters.Clear();
+                foreach (var value in proto.ProcessParameters)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePair>();
+                    tmp.SetValue(value);
+                    ProcessParameters.Add(tmp);
+                }
+                ProcessParameters.Raise();
             }
+        
             Raise();
         }
 
@@ -94,13 +110,15 @@ namespace Avikom.UnityTypes.Assistance
                 Name.SetValue(other.Name);
             }
 
-            if (Steps == null)
+            if (other.Steps != null)
             {
-                Steps = other.Steps;
-            }
-            else if (other.Steps != null)
-            {
-                Steps.SetValue(other.Steps);
+                if (Steps == null) { Steps = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.TaskStepSet>(); }
+                Steps.Clear();
+                foreach (var elem in other.Steps.Items)
+                {
+                    Steps.Add(elem);
+                }
+                Steps.Raise();
             }
 
             if (Summary == null)
@@ -130,13 +148,15 @@ namespace Avikom.UnityTypes.Assistance
                 Process.SetValue(other.Process);
             }
 
-            if (ProcessParameters == null)
+            if (other.ProcessParameters != null)
             {
-                ProcessParameters = other.ProcessParameters;
-            }
-            else if (other.ProcessParameters != null)
-            {
-                ProcessParameters.SetValue(other.ProcessParameters);
+                if (ProcessParameters == null) { ProcessParameters = ScriptableObject.CreateInstance<Avikom.UnityTypes.Generic.KeyValuePairSet>(); }
+                ProcessParameters.Clear();
+                foreach (var elem in other.ProcessParameters.Items)
+                {
+                    ProcessParameters.Add(elem);
+                }
+                ProcessParameters.Raise();
             }
             Raise();
         }
@@ -145,11 +165,15 @@ namespace Avikom.UnityTypes.Assistance
         {
             var proto = new Avikom.Types.Assistance.Task();
             proto.Name = Name?.GetValue() ?? proto.Name;
-            proto.Steps = Steps?.GetValue() ?? proto.Steps;
+
+            foreach (var value in Steps.Items) { proto.Steps.Add(value.GetValue()); }
+                        
             proto.Summary = Summary?.GetValue() ?? proto.Summary;
             proto.Description = Description?.GetValue() ?? proto.Description;
             proto.Process = Process?.GetValue() ?? proto.Process;
-            proto.ProcessParameters = ProcessParameters?.GetValue() ?? proto.ProcessParameters;
+
+            foreach (var value in ProcessParameters.Items) { proto.ProcessParameters.Add(value.GetValue()); }
+                        
             return proto;
         }
     }

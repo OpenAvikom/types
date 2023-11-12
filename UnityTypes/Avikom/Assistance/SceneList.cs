@@ -16,7 +16,7 @@ namespace Avikom.UnityTypes.Assistance
     {
         public static Avikom.Types.Assistance.SceneList TypeDefault = null;
         // a scene list
-        public Avikom.UnityTypes.Assistance.Scene Scenes;
+        public Avikom.UnityTypes.Assistance.SceneSet Scenes;
 
 
         public void Raise()
@@ -27,11 +27,19 @@ namespace Avikom.UnityTypes.Assistance
         public void SetValue(Avikom.Types.Assistance.SceneList proto)
         {
 
-            if (Scenes == null) { Scenes = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Scene>(); }
-            if (proto.Scenes != Avikom.UnityTypes.Assistance.Scene.TypeDefault)
+            if (Scenes == null) { Scenes = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.SceneSet>(); }
+            if (proto.Scenes.Count > 0)
             {
-                Scenes.SetValue(proto.Scenes);
+                Scenes.Clear();
+                foreach (var value in proto.Scenes)
+                {
+                    var tmp = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.Scene>();
+                    tmp.SetValue(value);
+                    Scenes.Add(tmp);
+                }
+                Scenes.Raise();
             }
+        
             Raise();
         }
 
@@ -39,13 +47,15 @@ namespace Avikom.UnityTypes.Assistance
         {
             if (!other) { return; }
 
-            if (Scenes == null)
+            if (other.Scenes != null)
             {
-                Scenes = other.Scenes;
-            }
-            else if (other.Scenes != null)
-            {
-                Scenes.SetValue(other.Scenes);
+                if (Scenes == null) { Scenes = ScriptableObject.CreateInstance<Avikom.UnityTypes.Assistance.SceneSet>(); }
+                Scenes.Clear();
+                foreach (var elem in other.Scenes.Items)
+                {
+                    Scenes.Add(elem);
+                }
+                Scenes.Raise();
             }
             Raise();
         }
@@ -53,7 +63,9 @@ namespace Avikom.UnityTypes.Assistance
         public Avikom.Types.Assistance.SceneList GetValue()
         {
             var proto = new Avikom.Types.Assistance.SceneList();
-            proto.Scenes = Scenes?.GetValue() ?? proto.Scenes;
+
+            foreach (var value in Scenes.Items) { proto.Scenes.Add(value.GetValue()); }
+                        
             return proto;
         }
     }
