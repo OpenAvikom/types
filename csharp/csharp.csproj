@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Protobuf_NoWarnMissingExpected>true</Protobuf_NoWarnMissingExpected>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.Tools" Version="2.23.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <Protobuf Include="../../protos/**/assistance/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Assistance" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/camunda/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Camunda" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/generic/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Generic" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/glasses/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Glasses" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/headset/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Headset" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/math/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Math" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/nlp/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Nlp" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/options/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Options" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/tracking/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Tracking" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/tunnel/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Tunnel" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/unity/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Unity" CompileOutputs="false" />
+        <Protobuf Include="../../protos/**/vision/*.proto" ProtoRoot="../../protos"
+            AdditionalImportDirs="../protos/api-common-protos"
+            OutputDir="../generated/csharp/Avikom/Vision" CompileOutputs="false" />
+    </ItemGroup>
+</Project>
+  
