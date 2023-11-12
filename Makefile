@@ -115,6 +115,6 @@ unity_publish:
 	git -C ${PROTO_OUT}/unity config --local user.email "${EMAIL}"
 	git -C ${PROTO_OUT}/unity config --local user.name "${USER}"
 	git -C ${PROTO_OUT}/unity commit --allow-empty -am "release ${VERSION}"
-	# git push --atomic origin upm ${VERSION}
+	git -C ${PROTO_OUT}/unity push --atomic origin upm ${VERSION}
 
 unity: python_generate csharp_generate unity_generate unity_publish
