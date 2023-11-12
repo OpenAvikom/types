@@ -1,5 +1,5 @@
 {
-  "name": "de.unibi.nca.avikom-unity-types",
+  "name": "com.github.openavikom.avikom-unity-types",
   "version": "@VERSION@",
   "displayName": "AVIKOM Unity Types",
   "description": "Type definitions for AVIKOM peers developed with Unity.",
