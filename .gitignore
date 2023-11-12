@@ -1,3 +1,5 @@
 bin
 obj
 generated
+*.pyc
+.DS_Store
