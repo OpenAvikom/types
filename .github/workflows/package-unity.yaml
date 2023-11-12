@@ -33,6 +33,6 @@ jobs:
         if: "!startsWith(github.ref, 'refs/tags')"
         run: make unity
         env:
-          VERSION: 0.10.0.dev${{ github.run_number }}
+          VERSION: 0.10.0-dev${{ github.run_number }}
           EMAIL: github-actions[bot]@users.noreply.github.com
           USER: github-actions[bot]
