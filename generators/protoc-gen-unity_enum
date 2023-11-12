@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+
+from unity_parser import UnityParser
+import sys
+from google.protobuf.compiler import plugin_pb2 as plugin
+from protoc_base_plugin.builder import build_tree, inject_docs
+
+
+class UnityEnumParser(UnityParser):
+
+    meta_template = """
+using UnityEngine;
+using Avikom.UnityAssets.Variables;
+
+namespace {message_namespace}
+{{
+{parsed_definitions}
+}}
+"""
+
+    enum_template = """
+{parsed_comment}
+[CreateAssetMenu(menuName = "{csharp_path}/{name}")]
+public class {name} : EnumVariable<{csharp_namespace}.{name}> {{ }}
+"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.enum_defs = []
+
+    def process_definition(self, definition, meta, parsed_fields, template):
+        try:
+            definition["csharp_namespace"] = meta.get("options")["csharp_namespace"]
+            definition["csharp_path"] = (
+                definition["csharp_namespace"].replace(".Types", "").replace(".", "/")
+            )
+        except KeyError:
+            # print(meta, file=sys.stderr)
+            return ""
+        res = super().process_definition(definition, meta, parsed_fields, template)
+        if definition["type"] == "Enum":
+            self.enum_defs.append([definition["name"], res])
+        return ""
+
+    def process_meta(self, meta, definitions_output):
+        res = super().process_meta(meta, definitions_output)
+        for enum_def in self.enum_defs:
+            enum_def[1] = super().process_meta(meta, [enum_def[1]])
+        return ""
+
+    def process(self, request):
+        response = plugin.CodeGeneratorResponse()
+        for proto_file in request.proto_file:
+            if self.skip_dependencies and proto_file.name not in request.file_to_generate:
+                continue
+            result = build_tree(proto_file, self.with_options)
+            if self.with_comments:
+                inject_docs(proto_file, result["definitions"])
+
+            self.enum_defs = []
+            result = self.process_raw(result)
+
+            file_name = self.get_filename(proto_file.name)
+            fpath = file_name.split("/")[:-1]
+            file_name_prefix = "/".join(fpath)
+
+            for enum_def in self.enum_defs:
+                f = response.file.add()
+                f.name = f"{file_name_prefix}/{enum_def[0]}.cs"
+                f.content = enum_def[1]
+
+        output = response.SerializeToString()
+        self.process_output(output)
+
+
+def main():
+    UnityEnumParser(comments=True, options=False).parse()
+
+
+if __name__ == "__main__":
+    main()

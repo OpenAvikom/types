@@ -1,0 +1,238 @@
+#!/usr/bin/env python
+
+from unity_parser import UnityParser
+import sys
+from google.protobuf.compiler import plugin_pb2 as plugin
+from protoc_base_plugin.builder import build_tree, inject_docs
+
+
+class UnityObjectParser(UnityParser):
+
+    null_checks = {
+        # "StringVariable": "proto.{name} != default(string)",
+        "BoolVariable": "true",
+        "ByteArrayVariable": "!proto.{name}.IsEmpty"
+        # "UnsignedIntVariable": "proto.{name} != default(uint)",
+        # "UnsignedLongVariable": "proto.{name} != default(ulong)",
+        # "IntVariable": "proto.{name} != default(int)",
+        # "FloatVariable": "proto.{name} != default(float)",
+    }
+
+    meta_template = """
+using UnityEngine;
+using Avikom.UnityAssets.Variables;
+using Avikom.UnityAssets.Sets;
+using Avikom.UnityAssets.Events;
+using Google.Protobuf;
+
+{parsed_comment}
+namespace {message_namespace}
+{{
+{parsed_definitions}
+}}
+"""
+
+    message_template = """
+{parsed_comment}
+[CreateAssetMenu(menuName = "{csharp_path}/{name}")]
+public class {name} : GameEvent<{name}>, IGameEvent
+{{
+    public static {csharp_namespace}.{name} TypeDefault = null;
+{parsed_fields}
+
+    public void Raise()
+    {{
+        Raise(this);
+    }}
+
+    public void SetValue({csharp_namespace}.{name} proto)
+    {{
+{parsed_assignment}
+        Raise();
+    }}
+
+    public void SetValue({name} other)
+    {{
+        if (!other) {{ return; }}
+{parsed_copy}
+        Raise();
+    }}
+
+    public {csharp_namespace}.{name} GetValue()
+    {{
+        var proto = new {csharp_namespace}.{name}();
+{parsed_retrieval}
+        return proto;
+    }}
+}}
+"""
+    value_template = """{name} = {value},  {parsed_comment}"""
+
+    field_template = """{parsed_comment}
+public {list_type} {name};
+"""
+
+    # def process_raw(self, data):
+    #     import pprint
+
+    #     pprint.pprint(data, indent=2)
+
+    def process_definition(self, definition, meta, parsed_fields, template):
+        try:
+            definition["csharp_namespace"] = meta.get("options")["csharp_namespace"]
+            definition["csharp_path"] = (
+                definition["csharp_namespace"].replace(".Types", "").replace(".", "/")
+            )
+        except KeyError:
+            # print(definition, file=sys.stderr)
+            return ""
+        assignment = []
+        retrieval = []
+        copy = []
+        value_setter = ""
+        value_getter = ""
+        for field in definition.get("fields", []):
+            if field["label"] == "LABEL_REPEATED":
+                if field["type"] == "ByteArrayVariable":
+                    value_setter = "value.ToByteArray()"
+                    value_getter = (
+                        "ByteString.CopyFrom(value.GetValue(), 0, value.GetValue().Length)"
+                    )
+                else:
+                    value_setter = "value"
+                    value_getter = "value.GetValue()"
+                assignment.append(
+                    """
+        if ({name} == null) {{ {name} = ScriptableObject.CreateInstance<{type}Set>(); }}
+        if (proto.{name}.Count > 0)
+        {{
+            {name}.Clear();
+            foreach (var value in proto.{name})
+            {{
+                var tmp = ScriptableObject.CreateInstance<{type}>();
+                tmp.SetValue({value_setter});
+                {name}.Add(tmp);
+            }}
+            {name}.Raise();
+        }}
+        """.format(
+                        name=field["name"], type=field["type"], value_setter=value_setter
+                    )
+                )
+                copy.append(
+                    """
+        if (other.{name} != null)
+        {{
+            if ({name} == null) {{ {name} = ScriptableObject.CreateInstance<{type}Set>(); }}
+            {name}.Clear();
+            foreach (var elem in other.{name}.Items)
+            {{
+                {name}.Add(elem);
+            }}
+            {name}.Raise();
+        }}""".format(
+                        name=field["name"], type=field["type"]
+                    )
+                )
+
+                retrieval.append(
+                    """
+        foreach (var value in {name}.Items) {{ proto.{name}.Add({value_getter}); }}
+                        """.format(
+                        name=field["name"], type=field["type"], value_getter=value_getter
+                    )
+                )
+            else:
+                if field["type"] == "ByteArrayVariable":
+                    value_setter = "proto.{name}.ToByteArray()".format(name=field["name"])
+                    value_getter = "({name} != null) ? ByteString.CopyFrom({name}.GetValue(), 0, {name}.GetValue().Length) : proto.{name}".format(
+                        name=field["name"]
+                    )
+                else:
+                    value_setter = "proto.{name}".format(name=field["name"])
+                    value_getter = "{name}?.GetValue() ?? proto.{name}".format(name=field["name"])
+                assignment.append(
+                    """
+        if ({name} == null) {{ {name} = ScriptableObject.CreateInstance<{type}>(); }}
+        if ({null_check})
+        {{
+            {name}.SetValue({value_setter});
+        }}""".format(
+                        name=field["name"],
+                        type=field["type"],
+                        value_setter=value_setter,
+                        null_check=self.null_checks[field["type"]].format(name=field["name"])
+                        if field["type"] in self.null_checks
+                        else f"proto.{field['name']} != {field['type']}.TypeDefault",
+                    )
+                )
+                copy.append(
+                    """
+        if ({name} == null)
+        {{
+            {name} = other.{name};
+        }}
+        else if (other.{name} != null)
+        {{
+            {name}.SetValue(other.{name});
+        }}""".format(
+                        name=field["name"]
+                    )
+                )
+                retrieval.append(
+                    "        proto.{name} = {value_getter};".format(
+                        name=field["name"], value_getter=value_getter
+                    )
+                )
+        definition["parsed_assignment"] = "\n".join(assignment)
+        definition["parsed_retrieval"] = "\n".join(retrieval)
+        definition["parsed_copy"] = "\n".join(copy)
+
+        if definition["type"] == "Enum":
+            template = self.enum_template
+        res = super().process_definition(definition, meta, parsed_fields, template)
+        self.type_defs.append([definition["name"], res])
+        return ""
+
+    def process_field(self, field, definition, meta, template):
+        if not field["type"] and field["name"] == field["name"].upper():
+            template = self.value_template
+        return super().process_field(field, definition, meta, template)
+
+    def process_meta(self, meta, definitions_output):
+        res = super().process_meta(meta, definitions_output)
+        for type_def in self.type_defs:
+            type_def[1] = super().process_meta(meta, [type_def[1]])
+        return ""
+
+    def process(self, request):
+        response = plugin.CodeGeneratorResponse()
+        for proto_file in request.proto_file:
+            if self.skip_dependencies and proto_file.name not in request.file_to_generate:
+                continue
+            result = build_tree(proto_file, self.with_options)
+            if self.with_comments:
+                inject_docs(proto_file, result["definitions"])
+
+            self.type_defs = []
+            result = self.process_raw(result)
+
+            file_name = self.get_filename(proto_file.name)
+            fpath = file_name.split("/")[:-1]
+            file_name_prefix = "/".join(fpath)
+
+            for type_def in self.type_defs:
+                f = response.file.add()
+                f.name = f"{file_name_prefix}/{type_def[0]}.cs"
+                f.content = type_def[1]
+
+        output = response.SerializeToString()
+        self.process_output(output)
+
+
+def main():
+    UnityObjectParser(comments=True, options=False).parse()
+
+
+if __name__ == "__main__":
+    main()
