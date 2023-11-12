@@ -85,7 +85,7 @@ unity_generate:
 	mkdir -p $(PROTO_OUT)
 	rm -rf $(PROTO_OUT)/unity
 
-	git clone -b upm git@github.com:OpenAvikom/avikom-unity-types.git ${PROTO_OUT}/unity
+	git clone -b upm git@github.com:OpenAvikom/types.git ${PROTO_OUT}/unity
 
 	cp -r templates/unity/* $(PROTO_OUT)/unity/
 	find  $(PROTO_OUT)/unity/Types -iname "*.cs" -delete
