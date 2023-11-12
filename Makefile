@@ -85,7 +85,7 @@ unity_generate:
 	mkdir -p $(PROTO_OUT)
 	rm -rf $(PROTO_OUT)/unity
 
-	git clone git@github.com:OpenAvikom/avikom-unity-types.git ${PROTO_OUT}/unity
+	git clone -b upm git@github.com:OpenAvikom/avikom-unity-types.git ${PROTO_OUT}/unity
 
 	cp -r templates/unity/* $(PROTO_OUT)/unity/
 	find  $(PROTO_OUT)/unity/Types -iname "*.cs" -delete
@@ -120,6 +120,6 @@ unity_publish:
 	git -C ${PROTO_OUT}/unity config --local user.email "${EMAIL}"
 	git -C ${PROTO_OUT}/unity config --local user.name "${USER}"
 	git -C ${PROTO_OUT}/unity commit --allow-empty -am "release ${VERSION}"
-	# git push --atomic origin main ${VERSION}
+	# git push --atomic origin upm ${VERSION}
 
 unity: python_generate csharp_generate unity_generate # unity_publish
