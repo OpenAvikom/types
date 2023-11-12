@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+
+from protoc_base_plugin.parser import ParserBase, indent, plugin
+from protoc_base_plugin.utils import Capitalize, camelCase, PascalCase
+import re
+
+
+class RSTParser(ParserBase):
+
+    type_mapper = {
+        "TYPE_STRING": "string",
+        "TYPE_MESSAGE": ":ref:`{type_name}`",
+        "TYPE_ENUM": ":ref:`{type_name}`",
+        "TYPE_BOOL": "bool",
+        "TYPE_UINT64": "uint64",
+        "TYPE_UINT32": "uint32",
+        "TYPE_INT32": "int32",
+        "TYPE_FLOAT": "float",
+        "TYPE_SFIXED32": "sfixed32",
+        "TYPE_BYTES": "bytes",
+    }
+
+    field_comment_template = "{comment}"
+    field_template = """   {name}, {type}, "{parsed_comment}" """
+    value_template = """   {name}, "{parsed_comment}" """
+    enum_value_template = """   {name}, {value}, "{parsed_comment}" """
+    method_template = """   {name}, {input_type}, {output_type}, "{parsed_comment}" """
+
+    definition_comment_template = "{comment}"
+    message_template = """
+.. _{package}.{name}:
+
+{name}
+{definition_underline}
+{parsed_comment}
+
+.. csv-table::
+   :header: "Field", "Type", "Description"
+   :widths: auto
+   
+{parsed_fields}
+"""
+
+    enum_template = """
+.. _{package}.{name}: 
+
+{name}
+{definition_underline}
+{parsed_comment}
+
+.. csv-table::
+   :header: "Name", "Value", "Description"
+   :widths: auto
+
+{parsed_fields}
+"""
+
+    service_template = """
+.. _{package}.{name}: 
+
+{name}
+{definition_underline}
+{parsed_comment}
+
+.. csv-table::
+   :header: "Method", "Input", "Returns", "Description"
+   :widths: auto
+
+{parsed_fields}
+"""
+
+    meta_comment_template = "{comment}"
+    meta_template = """
+.. _{filename}:
+
+{filename}
+{meta_underline}
+
+.. contents:: Definitions
+   :local:
+
+{parsed_definitions}
+"""
+    indent_level = 0
+
+    def process_definition(self, definition, meta, parsed_fields, template):
+        definition["definition_underline"] = "-" * len(definition["name"])
+        comment = definition.get("comment")
+        if comment is not None:
+            # remove spaces after newline because rst will treat that as an indended block otherwise
+            # then, replace @author with rst equivalent
+            definition["comment"] = re.sub(r"\n\s+", "\n", comment).replace(
+                "@author", "\n.. codeauthor::"
+            )
+        return super().process_definition(definition, meta, parsed_fields, template)
+
+    def process_field(self, field, definition, meta, template):
+        if field.get("type", None):
+            field["type"] = self.type_mapper[field["type"]].format(**field)
+            if field["label"] == "LABEL_REPEATED":
+                field["type"] = f"[{field['type']}]"
+        elif field.get("value", None) is not None:
+            template = self.enum_value_template
+        if "input_type" in field:
+            field["input_type"] = self.type_mapper["TYPE_MESSAGE"].format(
+                type_name=field["input_type"]
+            )
+        if "output_type" in field:
+            field["output_type"] = self.type_mapper["TYPE_MESSAGE"].format(
+                type_name=field["output_type"]
+            )
+        return super().process_field(field, definition, meta, template)
+
+    def process_meta(self, meta, parsed_definitions):
+        meta["meta_underline"] = "=" * len(meta["filename"])
+        return super().process_meta(meta, parsed_definitions)
+
+    @staticmethod
+    def get_filename(proto_name: str) -> str:
+        return proto_name.replace(".proto", ".rst")
+
+
+def main():
+    # AttributeError: Options shall be included but no 'pb2_path' has been not been passed. Use '--<gen_name>_out=pb_path=<root_of_pb2_files>:<out_path>' or set 'options=False' in constructor.
+    RSTParser(comments=True, options=False).parse()
+
+
+if __name__ == "__main__":
+    main()

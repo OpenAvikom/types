@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+
+from protoc_base_plugin.parser import ParserBase, indent, plugin
+from protoc_base_plugin.generators.text_parser import TextParser
+import sys
+import pprint
+
+from protoc_base_plugin.utils import (
+    camelCase,
+    PascalCase,
+    underscore_notation,
+)
+
+gateway_template = """
+package main
+
+import (
+	"context"
+	"flag"
+	"fmt"
+	"net/http"
+
+	"github.com/golang/glog"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+	"github.com/rs/cors"
+
+{imports}
+)
+
+var (
+	// command-line options:
+	// gRPC server endpoint
+	grpcDefaultEndpoint =  flag.String("grpc-default-endpoint", "localhost:9090", "gRPC server endpoint")
+    
+{vars}
+	
+	gatewayPort = flag.String("gateway-port", "8888", "gateway API port")
+)
+
+func run() error {{
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Create server and configure CORS
+	mux := runtime.NewServeMux()
+	c := cors.New(cors.Options{{
+		AllowedMethods: []string{{"GET", "POST", "PATCH"}},
+	}})
+	handler := c.Handler(mux)
+	
+    opts := []grpc.DialOption{{grpc.WithInsecure()}}
+
+	var err error
+	var endpoint string
+
+{registers}
+
+	fmt.Printf("Listening on port %s\\n", *gatewayPort)
+	// Start HTTP server (and proxy calls to gRPC server endpoint)
+	return http.ListenAndServe(fmt.Sprintf(":%s", *gatewayPort), handler)
+}}
+
+func main() {{
+	flag.Parse()
+	defer glog.Flush()
+
+	if err := run(); err != nil {{
+		glog.Fatal(err)
+	}}
+}}
+"""
+
+import_template = '\t{var_name} "{package_name}"'
+
+var_template = '\t{endpoint_var_name} = flag.String("{endpoint_param_name}", "", "{service_name} endpoint")'
+
+register_template = """\tendpoint = *{endpoint_var_name}
+\tif (endpoint == "") {{
+\t\tendpoint = *grpcDefaultEndpoint
+\t}}
+\terr = {var_name}.Register{service_name}HandlerFromEndpoint(ctx, mux, endpoint, opts)
+\tif err != nil {{
+\t\treturn err
+\t}}
+\tfmt.Printf("Expecting gRPC server for service {service_name} at %s\\n", endpoint)
+"""
+
+
+class GatewayParser(ParserBase):
+    def __init__(self, *args, **kwargs):
+        super(GatewayParser, self).__init__(*args, **kwargs)
+        self.packages = {}
+        self.imports = []
+        self.vars = []
+        self.registers = []
+
+    def process_meta(self, meta, parsed_definitions):
+        if meta["filename"] in self.packages and "go_package" in meta["options"]:
+            self.packages[meta["filename"]]["package"] = meta["options"]["go_package"]
+        return ""
+
+    def process_definition(self, definition, meta, parsed_fields, template):
+        if definition["type"] == "Service" and "".join(parsed_fields):
+            if definition["filename"] not in self.packages:
+                self.packages[definition["filename"]] = {"services": []}
+            self.packages[definition["filename"]]["services"].append(definition["name"])
+        return ""
+
+    def process_field(self, field, definition, meta, template):
+        if (
+            not field["type"]
+            and "extensions" in field
+            and field["extensions"].startswith(b"\x82\xd3\xe4\x93\x02")
+        ):
+            return "1"
+        return ""
+
+    def process_output(self, output):
+        tree = {}
+        for services in self.packages.values():
+            if services["package"] not in tree:
+                tree[services["package"]] = []
+            tree[services["package"]].extend(services["services"])
+
+        for package, services in tree.items():
+            elems = package.split("/")[-2:]
+            var_name = PascalCase("_".join(elems))
+            self.imports.append(
+                import_template.format(var_name=var_name, package_name=package)
+            )
+            for service in services:
+                params = {
+                    "var_name": var_name,
+                    "service_name": service,
+                    "endpoint_param_name": underscore_notation(service).replace(
+                        "_", "-"
+                    )
+                    + "-endpoint",
+                    "endpoint_var_name": camelCase(service) + "Endpoint",
+                }
+
+                self.vars.append(var_template.format(**params))
+                self.registers.append(register_template.format(**params))
+
+        response = plugin.CodeGeneratorResponse()
+        f = response.file.add()
+        f.name = "gateway.go"
+        f.content = gateway_template.format(
+            imports="\n".join(self.imports),
+            vars="\n".join(self.vars),
+            registers="\n".join(self.registers),
+        )
+        super(GatewayParser, self).process_output(response.SerializeToString())
+
+
+def main():
+    GatewayParser(comments=False, options=False).parse()
+
+
+if __name__ == "__main__":
+    main()
