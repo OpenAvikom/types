@@ -1,4 +1,4 @@
-name: Publish app.avikom.types
+name: Publish avikom-types
 on:
   release:
     types: [created]
