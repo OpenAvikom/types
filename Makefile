@@ -114,6 +114,7 @@ unity_publish:
 	sed -i'' -e 's/@VERSION@/${VERSION}/g' ${PROTO_OUT}/unity/package.json
 	git -C ${PROTO_OUT}/unity config --local user.email "${EMAIL}"
 	git -C ${PROTO_OUT}/unity config --local user.name "${USER}"
+	git -C ${PROTO_OUT}/unity add --all
 	git -C ${PROTO_OUT}/unity commit --allow-empty -am "release ${VERSION}"
 	git -C ${PROTO_OUT}/unity tag upm-${VERSION}
 	git -C ${PROTO_OUT}/unity push --atomic origin upm upm-${VERSION}
