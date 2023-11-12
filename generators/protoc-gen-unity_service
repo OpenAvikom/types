@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+
+from unity_parser import UnityParser
+from protoc_base_plugin.utils import Capitalize, camelCase, PascalCase
+import sys
+
+
+class UnityServiceParser(UnityParser):
+
+    meta_template = """
+using TNS=System.Threading.Tasks;
+using UnityEngine;
+using GrpcCore = Grpc.Core;
+
+using Avikom.Utils;
+using Avikom.RemoteServices.Grpc;
+using Avikom.Utils.Logging;
+
+using ProtoTypes = {csharp_namespace};
+using {message_namespace};
+    
+{parsed_comment}
+namespace {service_namespace}
+{{
+{parsed_definitions}
+}}
+"""
+
+    method_template = """
+public override {func_modifier}{task_specifier} {name}({params},
+    GrpcCore.ServerCallContext context)
+{{
+    {return_statement}
+}}
+"""
+    service_template = """
+public class {name}Handler : MonoBehaviour
+{{
+    private static readonly ICustomLogger Logger = LoggingManager.GetLogger(typeof({name}Handler));
+
+    void Start()
+    {{
+        Avikom.RemoteServices.Grpc.GrpcServer.Instance.AddService(ProtoTypes.{name}.BindService(new {name}Impl()));
+    }}
+}}
+
+class {name}Impl : ProtoTypes.{name}.{name}Base
+{{
+{parsed_fields}
+}}
+"""
+
+    def process_field(self, field, definition, meta, template):
+        if "server_streaming" not in field:
+            return ""
+        params = []
+
+        tmp = PascalCase(field["input_type"]).split(".")
+        inject = "Types" if tmp[0] != "Google" else "WellKnownTypes"
+        field["input_type"] = ".".join(tmp[:2] + [inject] + tmp[2:])
+        tmp = PascalCase(field["output_type"]).split(".")
+        inject = "Types" if tmp[0] != "Google" else "WellKnownTypes"
+        field["output_type"] = ".".join(tmp[:2] + [inject] + tmp[2:])
+
+        field["func_modifier"] = ""
+        if field["client_streaming"]:
+            field["func_modifier"] = "async "
+            params.append(f"GrpcCore.IAsyncStreamReader<{field['input_type']}> requestStream")
+        else:
+            params.append(f"{field['input_type']} request")
+
+        if field["server_streaming"]:
+            field["func_modifier"] = "async "
+            field["task_specifier"] = "TNS.Task"
+            params.append(f"GrpcCore.IServerStreamWriter<{field['output_type']}> responseStream")
+            field[
+                "return_statement"
+            ] = f"await responseStream.WriteAsync(new {field['output_type']}());"
+        else:
+            field["task_specifier"] = f"TNS.Task<{field['output_type']}>"
+            field["return_statement"] = f"return TNS.Task.FromResult(new {field['output_type']}());"
+
+        field["params"] = ",\n    ".join(params)
+        return super().process_field(field, definition, meta, template)
+
+    def get_filename(self, proto_name: str) -> str:
+        return PascalCase(proto_name).replace(".Proto", "Handler.cs")
+
+
+def main():
+    UnityServiceParser(comments=True, options=False).parse()
+
+
+if __name__ == "__main__":
+    main()
