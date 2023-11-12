@@ -11,7 +11,11 @@ INCLUDES = -I$(PROTO_IN) \
 		   -I/usr/include \
 		   -I$(PROTO_COMMON)
 
-    
+# Parameters that are required for packaging
+USER ?= unset
+EMAIL ?= unset@localhost
+
+
 java_generate:
 	mkdir -p $(PROTO_OUT)
 	rm -rf $(PROTO_OUT)/java
@@ -45,13 +49,17 @@ python_generate:
 	find $(PROTO_OUT)/python/avikom_types \
 	-type f \( -iname \*.py -o -iname \*.pyi \) \
 	-exec sed \
-	-i 's/\(from \|import \|\[\|-> \|: \|.__module__. : .\)avikom\./\1avikom_types\.avikom\./g' {} \;
+	-i'' \
+	-e 's/\(from \|import \|\[\|-> \|: \|.__module__. : .\)avikom\./\1avikom_types\.avikom\./g' {} \;
 	# add empty __init__ files for import
 	find $(PROTO_OUT)/python/avikom_types/* \
 	-type d -exec touch {}/__init__.py \;
 
 python_package:
-	# VERSION must be set!
+	@if [ ! "$(VERSION)" ]; then \
+        echo "VERSION must be specified!"; \
+        exit 1; \
+    fi
 	echo "__version__ = '${VERSION}'" > $(PROTO_OUT)/python/avikom_types/version.py
 	python -m build \
 	--sdist \
@@ -60,3 +68,58 @@ python_package:
 	$(PROTO_OUT)/python
 
 python: python_generate python_package
+
+csharp_generate:
+	mkdir -p $(PROTO_OUT)
+	rm -rf $(PROTO_OUT)/csharp
+	mkdir $(PROTO_OUT)/csharp
+	cp -r templates/csharp/* $(PROTO_OUT)/csharp/
+	dotnet build csharp
+	python generators/generate_constants.py\
+		-o $(PROTO_OUT)/csharp\
+		-r $(PROTO_IN)/../constants\
+		-t cs\
+		$(PROTO_IN)/../constants/**/**/*.json
+
+unity_generate:
+	mkdir -p $(PROTO_OUT)
+	rm -rf $(PROTO_OUT)/unity
+
+	git clone git@github.com:OpenAvikom/avikom-unity-types.git ${PROTO_OUT}/unity
+
+	cp -r templates/unity/* $(PROTO_OUT)/unity/
+	find  $(PROTO_OUT)/unity/Types -iname "*.cs" -delete
+	find  $(PROTO_OUT)/unity/UnityTypes -iname "*.cs" -delete
+
+	protoc \
+		$(INCLUDES) \
+		--plugin=protoc-gen-unity_type=./generators/protoc-gen-unity_type \
+		--unity_type_out=$(PROTO_OUT)/unity/UnityTypes \
+		$(PROTO_IN)/**/**/*.proto
+
+	protoc \
+		$(INCLUDES) \
+		--plugin=protoc-gen-unity_set=./generators/protoc-gen-unity_set \
+		--unity_set_out=$(PROTO_OUT)/unity/UnityTypes \
+		$(PROTO_IN)/**/**/*.proto
+
+	protoc \
+		$(INCLUDES) \
+		--plugin=protoc-gen-unity_set=./generators/protoc-gen-unity_enum \
+		--unity_set_out=$(PROTO_OUT)/unity/UnityTypes \
+		$(PROTO_IN)/**/**/*.proto
+
+	cp -r $(PROTO_OUT)/csharp/Avikom $(PROTO_OUT)/unity/Types/
+
+unity_publish:
+	@if [ ! "$(VERSION)" ]; then \
+        echo "VERSION must be specified!"; \
+        exit 1; \
+    fi
+	sed -i'' -e 's/@VERSION@/${VERSION}/g' ${PROTO_OUT}/unity/package.json
+	git -C ${PROTO_OUT}/unity config --local user.email "${EMAIL}"
+	git -C ${PROTO_OUT}/unity config --local user.name "${USER}"
+	git -C ${PROTO_OUT}/unity commit --allow-empty -am "release ${VERSION}"
+	# git push --atomic origin main ${VERSION}
+
+unity: python_generate csharp_generate unity_generate # unity_publish
