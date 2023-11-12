@@ -7,11 +7,10 @@ from protoc_base_plugin.builder import build_tree, inject_docs
 
 
 class UnityObjectParser(UnityParser):
-
     null_checks = {
         # "StringVariable": "proto.{name} != default(string)",
         "BoolVariable": "true",
-        "ByteArrayVariable": "!proto.{name}.IsEmpty"
+        "ByteArrayVariable": "!proto.{name}.IsEmpty",
         # "UnsignedIntVariable": "proto.{name} != default(uint)",
         # "UnsignedLongVariable": "proto.{name} != default(ulong)",
         # "IntVariable": "proto.{name} != default(int)",
@@ -95,9 +94,7 @@ public {list_type} {name};
             if field["label"] == "LABEL_REPEATED":
                 if field["type"] == "ByteArrayVariable":
                     value_setter = "value.ToByteArray()"
-                    value_getter = (
-                        "ByteString.CopyFrom(value.GetValue(), 0, value.GetValue().Length)"
-                    )
+                    value_getter = "ByteString.CopyFrom(value.GetValue(), 0, value.GetValue().Length)"
                 else:
                     value_setter = "value"
                     value_getter = "value.GetValue()"
@@ -115,9 +112,7 @@ public {list_type} {name};
             }}
             {name}.Raise();
         }}
-        """.format(
-                        name=field["name"], type=field["type"], value_setter=value_setter
-                    )
+        """.format(name=field["name"], type=field["type"], value_setter=value_setter)
                 )
                 copy.append(
                     """
@@ -130,27 +125,30 @@ public {list_type} {name};
                 {name}.Add(elem);
             }}
             {name}.Raise();
-        }}""".format(
-                        name=field["name"], type=field["type"]
-                    )
+        }}""".format(name=field["name"], type=field["type"])
                 )
 
                 retrieval.append(
                     """
         foreach (var value in {name}.Items) {{ proto.{name}.Add({value_getter}); }}
                         """.format(
-                        name=field["name"], type=field["type"], value_getter=value_getter
+                        name=field["name"],
+                        value_getter=value_getter,
                     )
                 )
             else:
                 if field["type"] == "ByteArrayVariable":
-                    value_setter = "proto.{name}.ToByteArray()".format(name=field["name"])
+                    value_setter = "proto.{name}.ToByteArray()".format(
+                        name=field["name"]
+                    )
                     value_getter = "({name} != null) ? ByteString.CopyFrom({name}.GetValue(), 0, {name}.GetValue().Length) : proto.{name}".format(
                         name=field["name"]
                     )
                 else:
                     value_setter = "proto.{name}".format(name=field["name"])
-                    value_getter = "{name}?.GetValue() ?? proto.{name}".format(name=field["name"])
+                    value_getter = "{name}?.GetValue() ?? proto.{name}".format(
+                        name=field["name"]
+                    )
                 assignment.append(
                     """
         if ({name} == null) {{ {name} = ScriptableObject.CreateInstance<{type}>(); }}
@@ -161,7 +159,9 @@ public {list_type} {name};
                         name=field["name"],
                         type=field["type"],
                         value_setter=value_setter,
-                        null_check=self.null_checks[field["type"]].format(name=field["name"])
+                        null_check=self.null_checks[field["type"]].format(
+                            name=field["name"]
+                        )
                         if field["type"] in self.null_checks
                         else f"proto.{field['name']} != {field['type']}.TypeDefault",
                     )
@@ -175,9 +175,7 @@ public {list_type} {name};
         else if (other.{name} != null)
         {{
             {name}.SetValue(other.{name});
-        }}""".format(
-                        name=field["name"]
-                    )
+        }}""".format(name=field["name"])
                 )
                 retrieval.append(
                     "        proto.{name} = {value_getter};".format(
@@ -208,7 +206,10 @@ public {list_type} {name};
     def process(self, request):
         response = plugin.CodeGeneratorResponse()
         for proto_file in request.proto_file:
-            if self.skip_dependencies and proto_file.name not in request.file_to_generate:
+            if (
+                self.skip_dependencies
+                and proto_file.name not in request.file_to_generate
+            ):
                 continue
             result = build_tree(proto_file, self.with_options)
             if self.with_comments:
