@@ -82,11 +82,6 @@ csharp_generate:
 		$(PROTO_IN)/../constants/**/**/*.json
 
 unity_generate:
-	mkdir -p $(PROTO_OUT)
-	rm -rf $(PROTO_OUT)/unity
-
-	git clone -b upm git@github.com:OpenAvikom/types.git ${PROTO_OUT}/unity
-
 	cp -r templates/unity/* $(PROTO_OUT)/unity/
 	find  $(PROTO_OUT)/unity/Types -iname "*.cs" -delete
 	find  $(PROTO_OUT)/unity/UnityTypes -iname "*.cs" -delete
@@ -122,4 +117,4 @@ unity_publish:
 	git -C ${PROTO_OUT}/unity commit --allow-empty -am "release ${VERSION}"
 	# git push --atomic origin upm ${VERSION}
 
-unity: python_generate csharp_generate unity_generate # unity_publish
+unity: python_generate csharp_generate unity_generate unity_publish
